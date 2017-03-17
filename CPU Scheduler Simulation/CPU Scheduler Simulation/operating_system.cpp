@@ -126,12 +126,16 @@ void OperatingSystem::initScheduler(SchedulerType type) {
 	switch (type)
 	{
 	case FIRST_COME_FIRST_SERVE:
+		s = new FirstComeFirstServe();
 		break;
 	case ROUND_ROBIN:
+		s = new RoundRobin();
 		break;
 	case SMALLEST_PROCESS_NEXT:
+		s = new SmallestProcessNext();
 		break;
 	case MULTILEVEL_FEEBACK_QUEUE:
+		s = new MultilevelFeedbackQueue();
 		break;
 	default:
 		break;

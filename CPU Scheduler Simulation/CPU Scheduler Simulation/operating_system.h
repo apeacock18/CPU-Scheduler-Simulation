@@ -10,11 +10,11 @@
 #include <ctime>
 
 #include "process.h"
-
-class FCFS;
-class RoundRobin;
-class SmallestProcess;
-class Multilevel;
+#include "scheduler.h"
+#include "first_come_first_serve.h"
+#include "round_robin.h"
+#include "smallest_process_next.h"
+#include "multilevel_feedback_queue.h"
 
 using namespace std;
 
