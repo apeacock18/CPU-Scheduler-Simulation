@@ -12,11 +12,11 @@ Process::Process(int id, int arrival_time, vector<int> bursts) : bursts(bursts) 
 }
 
 int Process::cpu() {
-
+	return 0;
 }
 
 int Process::io() {
-
+	return 0;
 }
 
 void Process::updateCpuWaitTime(int current_time) {

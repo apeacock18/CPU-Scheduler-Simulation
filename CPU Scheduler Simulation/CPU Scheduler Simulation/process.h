@@ -20,7 +20,6 @@ public:
 	int getArrivalTime() { return arrival_time; }
 	int getCpuWait() { return cpu_wait; }
 	int getIoWait() { return io_wait; }
-	
 
 	int cpu();
 	int io();
