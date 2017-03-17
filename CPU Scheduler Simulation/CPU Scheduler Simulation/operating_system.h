@@ -6,6 +6,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 #include "process.h"
 
@@ -34,6 +36,8 @@ private:
 	int processor_time;
 	int current_time;
 
+	int generateRandomNumberInBounds(int min, int max);
+
 public:
 	OperatingSystem() {}
 	/* Initializes class with scheduler 
@@ -43,6 +47,9 @@ public:
 
 	/* Generates stats */
 	void generateStatistics();
+
+	/* Generates random processes and places the data in file_name */
+	void generateProcessFile(string file_name, int num_processes);
 
 	/* Reads process data from txt file and initializes process table */
 	void readProcessesFromFile(string file_name);

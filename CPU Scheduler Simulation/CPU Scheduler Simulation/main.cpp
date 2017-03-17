@@ -4,6 +4,7 @@ using namespace std;
 
 int main() {
 	OperatingSystem os = OperatingSystem();
+	os.generateProcessFile("process_list.txt", 12);
 	os.readProcessesFromFile("process_list.txt");
 
 	return 0;
