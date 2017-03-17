@@ -85,10 +85,41 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 		int id, arrival_time;
 		vector<int> bursts;
 	}
+
+	//dummy process until we can read in from file
+	vector<int> bursts = { 3, 2, 5 };
+	Process* p = new Process(1, 0, bursts);
+	process_table.insert(make_pair(p->getId(), p));
 }
 
 void OperatingSystem::runProcesses() {
+	unordered_map<int, Process*>::iterator it = process_table.begin();
+	for (it; it != process_table.end(); ++it) {
+		//TODO: add processes based on arrival time
+		s->addProcess(it->second);
+	}
 
+	int current_time = 0;
+	while (true) {
+		cout << "Time is " << current_time << endl;
+		Process* p = s->schedule();
+		if (p == nullptr) { //TODO: and IO queue is empty and no more processes will arrive
+			cout << "No processes remaining." << endl;
+			break;
+		}
+
+		cout << "Running process with ID " << p->getId();
+		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
+		int cpu_remaining = p->cpu(current_time);
+		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
+		if (cpu_remaining <= 0 && !p->isFinished()) {
+			io_queue.push(p);
+		}
+
+		//TODO: deal with processes in IO queue
+
+		++current_time;
+	}
 }
 
 void OperatingSystem::initScheduler(SchedulerType type) {
