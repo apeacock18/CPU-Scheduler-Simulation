@@ -11,7 +11,7 @@ RoundRobin::RoundRobin() : Scheduler() {
 
 
 Process* RoundRobin::schedule() {
-
+	return nullptr;
 }
 
 void RoundRobin::addProcess(Process* p) {

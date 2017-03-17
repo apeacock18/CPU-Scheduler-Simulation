@@ -11,7 +11,7 @@ MultilevelFeedbackQueue::MultilevelFeedbackQueue() : Scheduler() {
 
 
 Process* MultilevelFeedbackQueue::schedule() {
-
+	return nullptr;
 }
 
 void MultilevelFeedbackQueue::addProcess(Process* p) {

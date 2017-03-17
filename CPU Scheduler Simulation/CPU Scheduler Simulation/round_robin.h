@@ -11,7 +11,7 @@ private:
 
 public:
 	//no arg construtor 
-	RoundRobin() {}
+	RoundRobin();
 
 	//getters
 	queue<Process*> getQueue() {

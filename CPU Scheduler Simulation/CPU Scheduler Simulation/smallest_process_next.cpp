@@ -11,7 +11,7 @@ SmallestProcessNext::SmallestProcessNext() : Scheduler() {
 
 
 Process* SmallestProcessNext::schedule() {
-
+	return nullptr;
 }
 
 void SmallestProcessNext::addProcess(Process* p) {

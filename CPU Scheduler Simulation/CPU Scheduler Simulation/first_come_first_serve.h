@@ -9,7 +9,7 @@ private:
 
 public:
 	//no arg construtor 
-	FirstComeFirstServe() {}
+	FirstComeFirstServe();
 
 	//getters
 	queue<Process*> getQueues() {

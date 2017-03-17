@@ -11,7 +11,7 @@ FirstComeFirstServe::FirstComeFirstServe() : Scheduler() {
 
 
 Process* FirstComeFirstServe::schedule() {
-
+	return nullptr;
 }
 
 void FirstComeFirstServe::addProcess(Process* p) {

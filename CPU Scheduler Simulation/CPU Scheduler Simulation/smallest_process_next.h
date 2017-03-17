@@ -9,7 +9,7 @@ private:
 
 public:
 	//no arg construtor 
-	SmallestProcessNext() {}
+	SmallestProcessNext();
 
 	//getters
 	priority_queue<Process*> getPriorityQueue() {

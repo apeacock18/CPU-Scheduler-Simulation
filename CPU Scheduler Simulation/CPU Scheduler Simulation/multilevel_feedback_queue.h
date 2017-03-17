@@ -9,7 +9,7 @@ private:
 
 public:
 	//no arg construtor 
-	MultilevelFeedbackQueue() {}
+	MultilevelFeedbackQueue();
 
 	//getters
 	vector<queue<Process*>> getQueues() {
