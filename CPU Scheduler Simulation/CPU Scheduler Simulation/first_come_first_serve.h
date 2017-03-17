@@ -5,20 +5,20 @@
 
 class FirstComeFirstServe : public Scheduler {
 private:
-	vector<queue<Process*>> queues;
+	queue<Process*> q;
 
 public:
 	//no arg construtor 
 	FirstComeFirstServe() {}
 
 	//getters
-	vector<queue<Process*>> getQueues() {
-		return queues;
+	queue<Process*> getQueues() {
+		return q;
 	}
 
 	//setters
-	void setPriortyQueue(vector<queue<Process*>> queues) {
-		this->queues = queues;
+	void setPriortyQueue(queue<Process*> q) {
+		this->q = q;
 	}
 
 	//other functions

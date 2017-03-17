@@ -5,20 +5,20 @@
 
 class SmallestProcessNext : public Scheduler {
 private:
-	vector<queue<Process*>> queues;
+	priority_queue<Process*> q;
 
 public:
 	//no arg construtor 
 	SmallestProcessNext() {}
 
 	//getters
-	vector<queue<Process*>> getQueues() {
-		return queues;
+	priority_queue<Process*> getPriorityQueue() {
+		return q;
 	}
 
 	//setters
-	void setPriortyQueue(vector<queue<Process*>> queues) {
-		this->queues = queues;
+	void setPriortyQueue(priority_queue<Process*> q) {
+		this->q = q;
 	}
 
 	//other functions

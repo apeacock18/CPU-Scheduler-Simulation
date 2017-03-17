@@ -5,19 +5,19 @@
 
 class MultilevelFeedbackQueue : public Scheduler {
 private:
-	vector<priority_queue<Process*>> queues;
+	vector<queue<Process*>> queues;
 
 public:
 	//no arg construtor 
 	MultilevelFeedbackQueue() {}
 
 	//getters
-	vector<priority_queue<Process*>> getQueues() {
+	vector<queue<Process*>> getQueues() {
 		return queues;
 	}
 
 	//setters
-	void setPriortyQueue(vector<priority_queue<Process*>> queues) {
+	void setPriortyQueue(vector<queue<Process*>> queues) {
 		this->queues = queues;
 	}
 
