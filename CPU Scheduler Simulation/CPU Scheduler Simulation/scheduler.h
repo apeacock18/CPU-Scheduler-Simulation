@@ -18,5 +18,5 @@ public:
 
 	//
 	virtual Process* schedule();
-	void addProcess(Process* p);
+	virtual void addProcess(Process* p);
 };

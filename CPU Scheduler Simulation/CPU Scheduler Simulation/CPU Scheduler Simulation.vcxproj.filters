@@ -27,6 +27,18 @@
     <ClCompile Include="scheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="multilevel_feedback_queue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="smallest_process_next.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="round_robin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="first_come_first_serve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="operating_system.h">
@@ -36,6 +48,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scheduler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="multilevel_feedback_queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="smallest_process_next.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="round_robin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="first_come_first_serve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
