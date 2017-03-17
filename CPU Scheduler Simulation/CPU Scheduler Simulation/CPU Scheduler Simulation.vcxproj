@@ -148,6 +148,9 @@
   <ItemGroup>
     <ClInclude Include="operating_system.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="process_list.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
