@@ -18,6 +18,8 @@ private:
 	int exit_time;
 	bool is_finished;
 
+	int first_in_cpu;
+
 public:
 	Process(int id, int arrival_time, vector<int> bursts);
 
@@ -37,4 +39,7 @@ public:
 
 	bool isCpuBurst();
 	bool isIoBurst();
+
+	int getResponseTime();
+	int getTurnaroundTime();
 };

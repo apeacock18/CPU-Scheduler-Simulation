@@ -10,6 +10,7 @@ Process::Process(int id, int arrival_time, vector<int> bursts) : bursts(bursts) 
 	burst_index = 0;
 	cpu_wait = 0;
 	io_wait = 0;
+	first_in_cpu = -1;
 	last_in_cpu = -1;
 	last_in_io = -1;
 	is_finished = false;
@@ -20,6 +21,10 @@ int Process::cpu(int current_time) {
 		cout << "Tried to call cpu when it was io\n";
 		cout << "Calling io instead...\n";
 		return io(current_time);
+	}
+
+	if (last_in_cpu == -1) {
+		first_in_cpu = current_time;
 	}
 
 	last_in_cpu = current_time;
@@ -77,4 +82,22 @@ bool Process::isCpuBurst() {
 
 bool Process::isIoBurst() {
 	return !isCpuBurst();
+}
+
+int Process::getResponseTime() {
+	if (first_in_cpu == -1) {
+		return -1;
+	}
+	else {
+		return (first_in_cpu - arrival_time);
+	}
+}
+
+int Process::getTurnaroundTime() {
+	if (exit_time == -1) {
+		return -1;
+	}
+	else {
+		return (exit_time - arrival_time);
+	}
 }
