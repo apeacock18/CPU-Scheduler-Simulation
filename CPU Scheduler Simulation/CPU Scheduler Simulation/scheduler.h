@@ -11,12 +11,12 @@ public:
 	Scheduler();
 
 	//getters
-	//Process* getCurrentProcess() { return Process* p;}
+	Process* getCurrentProcess() { return current_process;}
 
 	//setters 
 	void setCurrentProcess() { this->current_process = current_process; }
 
-	//
+	//other functions
 	virtual Process* schedule();
 	virtual void addProcess(Process* p);
 };
