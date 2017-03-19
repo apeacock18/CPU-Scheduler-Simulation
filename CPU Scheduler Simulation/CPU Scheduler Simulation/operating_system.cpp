@@ -87,9 +87,13 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 	}
 
 	//dummy process until we can read in from file
-	vector<int> bursts = { 3, 2, 5 };
-	Process* p = new Process(1, 0, bursts);
-	process_table.insert(make_pair(p->getId(), p));
+	vector<int> bursts1 = { 3, 2, 5 };
+	Process* p1 = new Process(1, 0, bursts1);
+	process_table.insert(make_pair(p1->getId(), p1));
+
+	vector<int> bursts2 = { 1, 3, 7 };
+	Process* p2 = new Process(2, 2, bursts2);
+	process_table.insert(make_pair(p2->getId(), p2));
 }
 
 void OperatingSystem::runProcesses() {
