@@ -6,4 +6,3 @@ Scheduler::Scheduler() {
 	current_process = nullptr;
 }
 
-
