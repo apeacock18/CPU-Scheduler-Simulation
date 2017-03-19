@@ -75,25 +75,35 @@ void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
 }
 
 void OperatingSystem::readProcessesFromFile(string file_name) {
-	ifstream file;
-	file.open("process_list.txt");
+	ifstream infile;
+	infile.open(file_name);
+	if (infile.fail()) {
+		cout << "Failed to read from \"" << file_name << "\"" << endl;
+		return;
+	}
 	//ignore comment
-	string str;
-	getline(file, str);
-	while (getline(file, str)) {
+	string line;
+	getline(infile, line);
+	while (getline(infile, line)) {
 		//Process p = Process();
 		int id, arrival_time;
-		vector<int> bursts;
+		istringstream is(line);
+		is >> id >> arrival_time;
+		vector<int> bursts = vector<int>(istream_iterator<int>(is), istream_iterator<int>());
+		process_table.insert(make_pair(id, new Process(id, arrival_time, bursts)));
 	}
 
+	infile.close();
+	cout << "Successfully read from \"" << file_name << "\"" << endl;
+
 	//dummy process until we can read in from file
-	vector<int> bursts1 = { 3, 9, 5 };
+	/*vector<int> bursts1 = { 3, 9, 5 };
 	Process* p1 = new Process(1, 0, bursts1);
 	process_table.insert(make_pair(p1->getId(), p1));
 
 	vector<int> bursts2 = { 1, 3, 7 };
 	Process* p2 = new Process(2, 2, bursts2);
-	process_table.insert(make_pair(p2->getId(), p2));
+	process_table.insert(make_pair(p2->getId(), p2));*/
 }
 
 void OperatingSystem::runProcesses() {
