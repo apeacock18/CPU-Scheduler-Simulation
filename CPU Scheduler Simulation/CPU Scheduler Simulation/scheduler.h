@@ -19,4 +19,5 @@ public:
 	//
 	virtual Process* schedule();
 	virtual void addProcess(Process* p);
+	virtual int getNumInReadyQueue();
 };
