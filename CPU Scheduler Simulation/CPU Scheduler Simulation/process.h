@@ -37,12 +37,12 @@ public:
 	Process(int id, int arrival_time, vector<int> bursts);
 
 	//getters
-	int getId() { return id; }
-	int getArrivalTime() { return arrival_time; }
-	int getCpuWait() { return cpu_wait; }
-	int getIoWait() { return io_wait; }
-	bool isFinished() { return is_finished; }
-	int getCurrentBurstLength() { return bursts[burst_index]; }
+	int getId() const { return id; }
+	int getArrivalTime() const { return arrival_time; }
+	int getCpuWait() const { return cpu_wait; }
+	int getIoWait() const { return io_wait; }
+	bool isFinished() const { return is_finished; }
+	int getCurrentBurstLength() const { return bursts[burst_index]; }
 	
 	/**
 	Runs CPU burst.
