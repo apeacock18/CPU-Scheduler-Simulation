@@ -33,3 +33,7 @@ Process* SmallestProcessNext::schedule() {
 void SmallestProcessNext::addProcess(Process* p) {
 	q.push(p);
 }
+
+int SmallestProcessNext::getNumInReadyQueue() {
+	return q.size();
+}

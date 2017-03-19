@@ -29,5 +29,6 @@ public:
 	/** Adds a process to the priority queue */
 	void addProcess(Process* p);
 
-
+	/** @return the number of processes in the priority queue */
+	int getNumInReadyQueue();
 };

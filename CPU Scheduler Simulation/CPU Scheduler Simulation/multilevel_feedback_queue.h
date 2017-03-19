@@ -23,6 +23,6 @@ public:
 
 	Process* schedule();
 	void addProcess(Process* p);
-
+	int getNumInReadyQueue();
 
 };

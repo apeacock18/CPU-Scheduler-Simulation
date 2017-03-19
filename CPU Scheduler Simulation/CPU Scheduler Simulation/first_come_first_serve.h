@@ -24,6 +24,7 @@ public:
 	//other functions
 	Process* schedule();
 	void addProcess(Process* p);
+	int getNumInReadyQueue();
 
 
 };

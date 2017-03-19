@@ -19,3 +19,7 @@ Process* FirstComeFirstServe::schedule() {
 void FirstComeFirstServe::addProcess(Process* p) {
 
 }
+
+int FirstComeFirstServe::getNumInReadyQueue() {
+	return 0;
+}

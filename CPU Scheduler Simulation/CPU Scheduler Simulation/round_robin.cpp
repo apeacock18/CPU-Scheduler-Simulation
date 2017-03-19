@@ -19,3 +19,7 @@ Process* RoundRobin::schedule() {
 void RoundRobin::addProcess(Process* p) {
 
 }
+
+int RoundRobin::getNumInReadyQueue() {
+	return 0;
+}

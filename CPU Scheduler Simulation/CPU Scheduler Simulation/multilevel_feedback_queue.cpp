@@ -19,3 +19,7 @@ Process* MultilevelFeedbackQueue::schedule() {
 void MultilevelFeedbackQueue::addProcess(Process* p) {
 
 }
+
+int MultilevelFeedbackQueue::getNumInReadyQueue() {
+	return 0;
+}

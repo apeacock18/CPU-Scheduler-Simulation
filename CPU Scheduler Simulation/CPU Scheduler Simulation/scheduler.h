@@ -19,4 +19,6 @@ public:
 	//
 	virtual Process* schedule() = 0;
 	virtual void addProcess(Process* p) = 0;
+	/* @return the number of processes in the scheduler's ready queue */
+	virtual int getNumInReadyQueue() = 0;
 };
