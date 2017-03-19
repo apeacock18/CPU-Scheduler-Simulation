@@ -114,11 +114,17 @@ void OperatingSystem::runProcesses() {
 	}
 
 	int current_time = 0;
+	Process* last_process = nullptr;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
 		//get process to execute next on CPU from scheduler
 		Process* p = s->schedule();
+		if (p != last_process && p != nullptr) {
+			cout << "Executing context switch. ";
+			current_time += 3;
+			cout << "Time is now " << current_time << endl;
+		}
 		//cout << p->getBurstIndex() << endl;
 		//progress I/O queue
 		//if (p != nullptr) cout << "Current PID: " << p->getId() << endl;
@@ -149,6 +155,7 @@ void OperatingSystem::runProcesses() {
 
 
 		++current_time;
+		last_process = p;
 	}
 }
 
