@@ -11,17 +11,19 @@ RoundRobin::RoundRobin() : Scheduler() {
 	counter = 0;
 }
 
-
+//what process should be executed this cycle?
 Process* RoundRobin::schedule() {
 	cout << "Scheduling Round Robin..." << endl;
-	if (current_process && !current_process->isFinished() && counter < quantum) {
+	//if current process is not finished, has not hit an I/O burst, and has not exceeded the time quantum
+	if (current_process && !current_process->isFinished() && counter < quantum && current_process->isCpuBurst()) {
 		counter++;
 		return current_process;
 	}
 	counter = 0;
 	if (!q.empty()) {
 		cout << "Process switching..." << endl;
-		if (current_process != nullptr && !current_process->isFinished()) {
+		if (current_process && !current_process->isFinished() && current_process->isCpuBurst()) {
+			//place back if CPU time left
 			q.push(current_process);
 		}
 		current_process = q.front();

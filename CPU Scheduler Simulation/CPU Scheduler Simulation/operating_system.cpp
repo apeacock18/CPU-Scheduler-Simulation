@@ -19,8 +19,8 @@ void OperatingSystem::generateStatistics() {
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
-	time_t seed = time(NULL);
-	srand(seed);
+	//time_t seed = time(NULL);
+	//srand(seed);
 
 	ofstream outfile;
 	outfile.open(file_name);
