@@ -45,12 +45,15 @@ int Process::io(int current_time) {
 }
 
 int Process::executeBurst() {
+	//return size of next burst
 	int new_value = --bursts[burst_index];
-
+	//check if current burst has completed
 	if (bursts[burst_index] <= 0) {
+		//move to next burst
 		++burst_index;
-
+		//check if there is a next burst
 		if (burst_index >= bursts.size()) {
+			//if no next burst, process is finished
 			is_finished = true;
 		}
 	}

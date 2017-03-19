@@ -44,6 +44,8 @@ public:
 	bool isFinished() const { return is_finished; }
 	int getCurrentBurstLength() const { return bursts[burst_index]; }
 	
+	int getBurstIndex() const { return burst_index; }
+
 	/**
 	Runs CPU burst.
 	@returns time remaining in current burst

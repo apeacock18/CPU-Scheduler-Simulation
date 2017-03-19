@@ -117,23 +117,30 @@ void OperatingSystem::runProcesses() {
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
+		//get process to execute next on CPU from scheduler
 		Process* p = s->schedule();
+		//cout << p->getBurstIndex() << endl;
+		//progress I/O queue
+		//if (p != nullptr) cout << "Current PID: " << p->getId() << endl;
 		updateIoQueue();
 
 		if (p == nullptr) { //TODO: and no more processes will arrive
+			//no process to execute from ready queue
 			if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+				//no processes remain in ready or I/O queue. Abort.
 				cout << "No processes remaining." << endl;
 				break;
 			}
 			else {
+				//wait for processes in I/O queue
 				cout << io_queue.size() << " processes still in IO" << endl;
 				++current_time;
 				continue;
 			}
 		}
-
 		cout << "Running process with ID " << p->getId();
 		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
+		//progress CPU burst of current process
 		int cpu_remaining = p->cpu(current_time);
 		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
 		if (cpu_remaining <= 0 && !p->isFinished()) {
@@ -148,6 +155,8 @@ void OperatingSystem::runProcesses() {
 void OperatingSystem::updateIoQueue() {
 	if (!io_queue.empty()) {
 		Process* front = io_queue.front();
+		//process io for one tick
+		//cout << "updateIoQueue() - PID: " << front->getId() << endl;
 		int io_remaining = front->io(current_time);
 		if (io_remaining <= 0) {
 			io_queue.pop();
