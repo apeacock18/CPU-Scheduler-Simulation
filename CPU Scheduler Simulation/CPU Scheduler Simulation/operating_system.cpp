@@ -126,6 +126,17 @@ void OperatingSystem::runProcesses() {
 	}
 }
 
+void OperatingSystem::updateIoQueue() {
+	if (!io_queue.empty()) {
+		Process* front = io_queue.front();
+		int io_remaining = front->io(current_time);
+		if (io_remaining <= 0 && !front->isFinished()) {
+			io_queue.pop();
+			s->addProcess(front);
+		}
+	}
+}
+
 void OperatingSystem::initScheduler(SchedulerType type) {
 	switch (type)
 	{

@@ -57,6 +57,9 @@ public:
 	/* Execute all processes in the process table */
 	void runProcesses();
 
+	/* Decrements current IO burst on process at front of queue and removes from queue if finished with IO */
+	void updateIoQueue();
+
 	/* Generates stats */
 	void initScheduler(SchedulerType);
 
