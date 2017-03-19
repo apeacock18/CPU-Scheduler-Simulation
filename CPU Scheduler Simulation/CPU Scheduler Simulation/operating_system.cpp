@@ -87,7 +87,7 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 	}
 
 	//dummy process until we can read in from file
-	vector<int> bursts1 = { 3, 2, 5 };
+	vector<int> bursts1 = { 3, 9, 5 };
 	Process* p1 = new Process(1, 0, bursts1);
 	process_table.insert(make_pair(p1->getId(), p1));
 
@@ -106,10 +106,20 @@ void OperatingSystem::runProcesses() {
 	int current_time = 0;
 	while (true) {
 		cout << "Time is " << current_time << endl;
+
 		Process* p = s->schedule();
-		if (p == nullptr) { //TODO: and IO queue is empty and no more processes will arrive
-			cout << "No processes remaining." << endl;
-			break;
+		updateIoQueue();
+
+		if (p == nullptr) { //TODO: and no more processes will arrive
+			if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+				cout << "No processes remaining." << endl;
+				break;
+			}
+			else {
+				cout << io_queue.size() << " processes still in IO" << endl;
+				++current_time;
+				continue;
+			}
 		}
 
 		cout << "Running process with ID " << p->getId();
@@ -120,7 +130,6 @@ void OperatingSystem::runProcesses() {
 			io_queue.push(p);
 		}
 
-		//TODO: deal with processes in IO queue
 
 		++current_time;
 	}
