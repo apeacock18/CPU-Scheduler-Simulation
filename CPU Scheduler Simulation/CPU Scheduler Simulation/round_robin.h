@@ -7,25 +7,25 @@ class RoundRobin : public Scheduler {
 private:
 	int quantum;
 	int counter;
-	vector<queue<Process*>> queues;
+	queue<Process*> q;
 
 public:
 	//no arg construtor 
-	RoundRobin() {}
+	RoundRobin();
 
 	//getters
-	vector<queue<Process*>> getQueues() {
-		return queues;
+	queue<Process*> getQueue() {
+		return q;
 	}
 
 	//setters
-	void setPriortyQueue(vector<queue<Process*>> queues) {
-		this->queues = queues;
+	void setQueue(queue<Process*> q) {
+		this->q = q;
 	}
 
 	//other functions
 	Process* schedule();
 	void addProcess(Process* p);
-
+	int getNumInReadyQueue();
 
 }; 
