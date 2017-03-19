@@ -19,17 +19,20 @@ Process* RoundRobin::schedule() {
 		counter++;
 		return current_process;
 	}
+	//new process to be scheduled
 	counter = 0;
 	if (!q.empty()) {
 		cout << "Process switching..." << endl;
 		if (current_process && !current_process->isFinished() && current_process->isCpuBurst()) {
-			//place back if CPU time left
+			//place back in ready queue if interrupted due to exceeded time quantum
 			q.push(current_process);
 		}
+		//pick next process in queue
 		current_process = q.front();
 		q.pop();
 		return current_process;
 	}
+	//ready queue has no processes, so return nullptr
 	current_process = nullptr;
 	return current_process;
 }

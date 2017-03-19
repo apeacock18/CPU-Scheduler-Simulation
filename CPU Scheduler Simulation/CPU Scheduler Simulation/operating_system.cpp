@@ -5,7 +5,23 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 }
 
 OperatingSystem::OperatingSystem(SchedulerType type) {
-	initScheduler(type);
+	switch (type)
+	{
+	case FIRST_COME_FIRST_SERVE:
+		s = new FirstComeFirstServe();
+		break;
+	case ROUND_ROBIN:
+		s = new RoundRobin();
+		break;
+	case SMALLEST_PROCESS_NEXT:
+		s = new SmallestProcessNext();
+		break;
+	case MULTILEVEL_FEEBACK_QUEUE:
+		s = new MultilevelFeedbackQueue();
+		break;
+	default:
+		break;
+	}
 	processor_time = 0;
 	current_time = 0;
 }
@@ -19,8 +35,8 @@ void OperatingSystem::generateStatistics() {
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
-	//time_t seed = time(NULL);
-	//srand(seed);
+	time_t seed = time(NULL);
+	srand(seed);
 
 	ofstream outfile;
 	outfile.open(file_name);
@@ -95,33 +111,27 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 
 	infile.close();
 	cout << "Successfully read from \"" << file_name << "\"" << endl;
-
-	//dummy process until we can read in from file
-	/*vector<int> bursts1 = { 3, 9, 5 };
-	Process* p1 = new Process(1, 0, bursts1);
-	process_table.insert(make_pair(p1->getId(), p1));
-
-	vector<int> bursts2 = { 1, 3, 7 };
-	Process* p2 = new Process(2, 2, bursts2);
-	process_table.insert(make_pair(p2->getId(), p2));*/
 }
 
 void OperatingSystem::runProcesses() {
+	//load initial processes to scheduler
 	unordered_map<int, Process*>::iterator it = process_table.begin();
+	vector<Process> processList;
 	for (it; it != process_table.end(); ++it) {
-		//TODO: add processes based on arrival time
-		s->addProcess(it->second);
+		processList.push_back(*it->second);
 	}
-
+	//sort processes based off of arrival time
+	sort(processList.begin(), processList.end());
+	for (int i = 0; i < processList.size(); i++) {
+		s->addProcess(&processList[i]);
+	}
 	int current_time = 0;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
 		//get process to execute next on CPU from scheduler
 		Process* p = s->schedule();
-		//cout << p->getBurstIndex() << endl;
 		//progress I/O queue
-		//if (p != nullptr) cout << "Current PID: " << p->getId() << endl;
 		updateIoQueue();
 
 		if (p == nullptr) { //TODO: and no more processes will arrive
@@ -147,7 +157,6 @@ void OperatingSystem::runProcesses() {
 			io_queue.push(p);
 		}
 
-
 		++current_time;
 	}
 }
@@ -164,25 +173,5 @@ void OperatingSystem::updateIoQueue() {
 				s->addProcess(front);
 			}
 		}
-	}
-}
-
-void OperatingSystem::initScheduler(SchedulerType type) {
-	switch (type)
-	{
-	case FIRST_COME_FIRST_SERVE:
-		s = new FirstComeFirstServe();
-		break;
-	case ROUND_ROBIN:
-		s = new RoundRobin();
-		break;
-	case SMALLEST_PROCESS_NEXT:
-		s = new SmallestProcessNext();
-		break;
-	case MULTILEVEL_FEEBACK_QUEUE:
-		s = new MultilevelFeedbackQueue();
-		break;
-	default:
-		break;
 	}
 }

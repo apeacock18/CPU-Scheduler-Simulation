@@ -71,4 +71,9 @@ public:
 	int getResponseTime();
 	/* @returns -1 if the process isn't finished yet, and the turnaround time if it has */
 	int getTurnaroundTime();
+
+	/* Override comparator to sort on arrival_time */
+	bool operator<(const Process &other) const {
+		return arrival_time < other.arrival_time;
+	}
 };
