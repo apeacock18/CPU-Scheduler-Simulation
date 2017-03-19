@@ -6,7 +6,7 @@
 
 using namespace std;
 
-MultilevelFeedbackQueue::MultilevelFeedbackQueue() : Scheduler() {
+MultilevelFeedbackQueue::MultilevelFeedbackQueue() : Scheduler(), queues(3) {
 
 }
 
@@ -16,8 +16,11 @@ Process* MultilevelFeedbackQueue::schedule() {
 	return nullptr;
 }
 
-void MultilevelFeedbackQueue::addProcess(Process* p) {
-
+/*
+Add a process back to the top queue 
+*/
+void MultilevelFeedbackQueue::addProcess(Process* p) { 
+	queues[0].push(p);
 }
 
 int MultilevelFeedbackQueue::getNumInReadyQueue() {

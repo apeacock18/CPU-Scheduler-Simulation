@@ -8,5 +8,11 @@ int main() {
 	os.readProcessesFromFile("process_list.txt");
 	os.runProcesses();
 
+	//cout << endl << "///////////////////////////////////////////////////////////////////" << endl << "///////////////////////////////////////////////////////////////////" <<endl <<endl;
+	//os = OperatingSystem(SchedulerType::SMALLEST_PROCESS_NEXT);
+	//os.readProcessesFromFile("process_list.txt");
+	//os.runProcesses();
+
+
 	return 0;
 }
