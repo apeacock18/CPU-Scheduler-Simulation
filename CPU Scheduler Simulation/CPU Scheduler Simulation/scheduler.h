@@ -17,7 +17,7 @@ public:
 	void setCurrentProcess() { this->current_process = current_process; }
 
 	//
-	virtual Process* schedule();
-	virtual void addProcess(Process* p);
-	virtual int getNumInReadyQueue();
+	virtual Process* schedule() = 0;
+	virtual void addProcess(Process* p) = 0;
+	virtual int getNumInReadyQueue() = 0;
 };
