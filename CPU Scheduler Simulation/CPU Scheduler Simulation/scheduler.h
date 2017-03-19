@@ -3,7 +3,7 @@
 using namespace std;
 
 class Scheduler {
-private:
+protected:
 	Process* current_process;
 
 public:
