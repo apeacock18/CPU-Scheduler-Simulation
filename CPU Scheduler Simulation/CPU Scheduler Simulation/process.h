@@ -6,7 +6,7 @@ using namespace std;
 class Process {
 private:
 	int id;
-	/* holds alternating cpu and io burst values*/
+	/* holds alternating cpu and io burst values */
 	vector<int> bursts;
 	/* index of current burst in burst vector */
 	int burst_index;
@@ -62,17 +62,11 @@ public:
 
 	/* @returns true if the process is currently on a CPU burst */
 	bool isCpuBurst();
-	/* @returns false if the process is currently on an IO burst */
+	/* @returns true if the process is currently on an IO burst */
 	bool isIoBurst();
 
-	/**
-	Gets the response time for the process.
-	@returns -1 if the process hasn't run yet, and the response time if it has
-	**/
+	/* @returns -1 if the process hasn't run yet, and the response time if it has */
 	int getResponseTime();
-	/**
-	Gets the turnaround time for the process.
-	@returns the turnaround time
-	**/
+	/* @returns -1 if the process isn't finished yet, and the turnaround time if it has */
 	int getTurnaroundTime();
 };
