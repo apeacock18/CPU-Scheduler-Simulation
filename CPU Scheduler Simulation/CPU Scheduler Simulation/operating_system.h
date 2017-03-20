@@ -37,6 +37,7 @@ private:
 	unordered_map<int, Process*> process_table;
 	int processor_time;
 	int current_time;
+	int delete_me = 0;
 
 	int generateRandomNumberInBounds(int min, int max);
 

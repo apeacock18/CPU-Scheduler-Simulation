@@ -67,6 +67,7 @@ void OperatingSystem::generateStatistics() {
 	outfile << "Average response time: " << avg_response << " ms" << endl;
 	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
 	outfile << "Process utilization: " << processor_utilization * 100 << "%" << endl;
+	outfile << "Idle time: " << delete_me << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
@@ -182,19 +183,27 @@ void OperatingSystem::runProcesses() {
 				break;
 			}
 			else {
+				delete_me++;
 				//wait for processes in I/O queue
 				cout << io_queue.size() << " processes still in IO" << endl;
 				++current_time;
 				continue;
 			}
 		}
+		//increment processor time
+		processor_time++;
 		cout << "Running process with ID " << p->getId();
 		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
 		//progress CPU burst of current process
 		int cpu_remaining = p->cpu(current_time);
 		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
-		if (cpu_remaining <= 0 && !p->isFinished()) {
-			io_queue.push(p);
+		//check if current burst has finished
+		if (cpu_remaining <= 0) {
+			//set process exit time
+			p->updateExitTime(current_time);
+			if (!p->isFinished()) {
+				io_queue.push(p);
+			}
 		}
 
 		++current_time;
