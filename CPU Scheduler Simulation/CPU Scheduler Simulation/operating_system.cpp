@@ -10,18 +10,32 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	case FIRST_COME_FIRST_SERVE:
 		sched_type = "FIRST_COME_FIRST_SERVE";
 		s = new FirstComeFirstServe(1);
+		num_of_cores = 1;
+		break;
+	case FOUR_CORE_FCFS:
+		sched_type = "FOUR_CORE_FCFS";
+		s = new FirstComeFirstServe(4);
+		num_of_cores = 4;
+		break;
+	case EIGHT_CORE_FCFS:
+		sched_type = "EIGHT_CORE_FCFS";
+		s = new FirstComeFirstServe(8);
+		num_of_cores = 8;
 		break;
 	case ROUND_ROBIN:
 		sched_type = "ROUND_ROBIN";
 		s = new RoundRobin();
+		num_of_cores = 1;
 		break;
 	case SMALLEST_PROCESS_NEXT:
 		sched_type = "SMALLEST_PROCESS_NEXT";
 		s = new SmallestProcessNext();
+		num_of_cores = 1;
 		break;
 	case MULTILEVEL_FEEBACK_QUEUE:
 		sched_type = "MULTILEVEL_FEEBACK_QUEUE";
 		s = new MultilevelFeedbackQueue();
+		num_of_cores = 1;
 		break;
 	default:
 		sched_type = "NO_SCHEDULER";
@@ -169,46 +183,54 @@ void OperatingSystem::runProcesses() {
 	current_time = 0;
 	while (true) {
 		cout << "Time is " << current_time << endl;
-
-		//get process to execute next on CPU from scheduler
-		Process* p = s->schedule();
-		//progress I/O queue
-		updateIoQueue();
-
-		if (p == nullptr) { //TODO: and no more processes will arrive
-			//no process to execute from ready queue
-			if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
-				//no processes remain in ready or I/O queue. Abort.
-				cout << "No processes remaining." << endl;
-				break;
+		bool check_for_break = false;
+		for (int i = 0; i < num_of_cores; i++) {
+			//get process to execute next on CPU from scheduler
+			Process* p = s->schedule();
+			//progress I/O queue
+			if (i == 0) {
+				updateIoQueue();
 			}
-			else {
-				delete_me++;
-				//wait for processes in I/O queue
-				cout << io_queue.size() << " processes still in IO" << endl;
-				++current_time;
-				continue;
+
+			if (p == nullptr) { //TODO: and no more processes will arrive
+				//no process to execute from ready queue
+				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+					//no processes remain in ready or I/O queue. Abort.
+					cout << "No processes remaining." << endl;
+					check_for_break = true;
+					break;
+				}
+				else {
+					delete_me++;
+					//wait for processes in I/O queue
+					cout << io_queue.size() << " processes still in IO" << endl;
+					++current_time;
+					continue;
+				}
+			}
+			//increment processor time
+			processor_time++;
+			cout << "Running process with ID " << p->getId();
+			cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
+			//progress CPU burst of current process
+			int cpu_remaining = p->cpu(current_time);
+			cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
+			//check if current burst has finished
+			if (cpu_remaining <= 0) {
+				//set process exit time
+				p->updateExitTime(current_time);
+				if (!p->isFinished()) {
+					io_queue.push(p);
+				}
 			}
 		}
-		//increment processor time
-		processor_time++;
-		cout << "Running process with ID " << p->getId();
-		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
-		//progress CPU burst of current process
-		int cpu_remaining = p->cpu(current_time);
-		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
-		//check if current burst has finished
-		if (cpu_remaining <= 0) {
-			//set process exit time
-			p->updateExitTime(current_time);
-			if (!p->isFinished()) {
-				io_queue.push(p);
-			}
+		if (check_for_break == true) {
+			break;
 		}
-
 		++current_time;
 	}
 }
+
 
 void OperatingSystem::updateIoQueue() {
 	if (!io_queue.empty()) {

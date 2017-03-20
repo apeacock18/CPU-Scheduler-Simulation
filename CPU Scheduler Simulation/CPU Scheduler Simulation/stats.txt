@@ -1,7 +1,7 @@
-Sheduler type: SMALLEST_PROCESS_NEXT
-Throughput: 0.0308483 processes/ms
+Sheduler type: FOUR_CORE_FCFS
+Throughput: 0.148148 processes/ms
 Average wait time: 0 ms
-Average response time: 100.167 ms
-Average turnaround time: 178.417 ms
-Process utilization: 100%
+Average response time: 2.75 ms
+Average turnaround time: 38.4167 ms
+Process utilization: 402.469%
 Idle time: 0

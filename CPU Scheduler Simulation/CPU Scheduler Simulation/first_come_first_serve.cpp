@@ -6,14 +6,15 @@
 
 using namespace std;
 
-FirstComeFirstServe::FirstComeFirstServe(int num_of_cores = 1) : Scheduler(), q(), multicore_processes(num_of_cores, nullptr) {
+FirstComeFirstServe::FirstComeFirstServe(int num_of_cores) : Scheduler(), q(), multicore_processes(num_of_cores, nullptr) {
 	current_core_index = 0;
+	this->num_of_cores = num_of_cores;
 
 }
 
 
 Process* FirstComeFirstServe::schedule() {
-	cout << "Scheduling FCFS..." << endl;
+	cout << "Scheduling FCFS with " << num_of_cores << " cores..." << endl;
 	Process* to_return = nullptr;
 
 	if (multicore_processes[current_core_index] && multicore_processes[current_core_index]->isCpuBurst()) {
