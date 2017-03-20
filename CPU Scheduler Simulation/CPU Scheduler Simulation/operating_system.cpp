@@ -41,6 +41,7 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 		sched_type = "NO_SCHEDULER";
 		break;
 	}
+	idle_time = 0;
 	processor_time = 0;
 	current_time = 0;
 }
@@ -76,12 +77,14 @@ void OperatingSystem::generateStatistics() {
 	double avg_turnaround = total_turnaround / num_processes;
 
 	outfile << "Sheduler type: " << sched_type << endl;
+	outfile << "Total runtime: " << current_time << " ms" << endl;
 	outfile << "Throughput: " << through_put << " processes/ms" << endl;
 	outfile << "Average wait time: " << avg_wait << " ms" << endl;
 	outfile << "Average response time: " << avg_response << " ms" << endl;
 	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
-	outfile << "Process utilization: " << processor_utilization * 100 << "%" << endl;
-	outfile << "Idle time: " << delete_me << endl;
+	outfile << "CPU utilization: " << processor_utilization * 100 << "%" << endl;
+	outfile << "CPU time: " << processor_time << " ms" << endl;
+	outfile << "Idle time: " << idle_time << " ms" << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
@@ -181,6 +184,7 @@ void OperatingSystem::runProcesses() {
 		s->addProcess(processList[i]);
 	}
 	current_time = 0;
+	int current_pid = -1;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 		bool check_for_break = false;
@@ -191,6 +195,17 @@ void OperatingSystem::runProcesses() {
 			if (i == 0) {
 				updateIoQueue();
 			}
+
+		//get process to execute next on CPU from scheduler
+		Process* p = s->schedule();
+		if (p && p->getId() != current_pid) {
+			//process has switched
+			//update wait time for newly arrived process
+			p->updateCpuWaitTime(current_time);
+			current_pid = p->getId();
+		}
+		//progress I/O queue
+		updateIoQueue();
 
 			if (p == nullptr) { //TODO: and no more processes will arrive
 				//no process to execute from ready queue
@@ -226,6 +241,35 @@ void OperatingSystem::runProcesses() {
 		}
 		if (check_for_break == true) {
 			break;
+		if (p == nullptr) { //TODO: and no more processes will arrive
+			//no process to execute from ready queue
+			if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+				//no processes remain in ready or I/O queue. Abort.
+				cout << "No processes remaining." << endl;
+				break;
+			}
+			else {
+				idle_time++;
+				//wait for processes in I/O queue
+				cout << io_queue.size() << " processes still in IO" << endl;
+				++current_time;
+				continue;
+			}
+		}
+		//increment processor time
+		processor_time++;
+		cout << "Running process with ID " << p->getId();
+		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
+		//progress CPU burst of current process
+		int cpu_remaining = p->cpu(current_time);
+		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
+		//check if current burst has finished
+		if (cpu_remaining <= 0) {
+			//set process exit time
+			p->updateExitTime(current_time);
+			if (!p->isFinished()) {
+				io_queue.push(p);
+			}
 		}
 		++current_time;
 	}
