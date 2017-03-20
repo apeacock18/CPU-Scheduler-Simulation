@@ -32,6 +32,7 @@ class Process;
 class OperatingSystem {
 private:
 	Scheduler* s;
+	string sched_type;
 	queue<Process*> io_queue;
 	unordered_map<int, Process*> process_table;
 	int processor_time;

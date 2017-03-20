@@ -8,18 +8,23 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	switch (type)
 	{
 	case FIRST_COME_FIRST_SERVE:
+		sched_type = "FIRST_COME_FIRST_SERVE";
 		s = new FirstComeFirstServe();
 		break;
 	case ROUND_ROBIN:
+		sched_type = "ROUND_ROBIN";
 		s = new RoundRobin();
 		break;
 	case SMALLEST_PROCESS_NEXT:
+		sched_type = "SMALLEST_PROCESS_NEXT";
 		s = new SmallestProcessNext();
 		break;
 	case MULTILEVEL_FEEBACK_QUEUE:
+		sched_type = "MULTILEVEL_FEEBACK_QUEUE";
 		s = new MultilevelFeedbackQueue();
 		break;
 	default:
+		sched_type = "NO_SCHEDULER";
 		break;
 	}
 	processor_time = 0;
@@ -32,6 +37,36 @@ void OperatingSystem::generateStatistics() {
 	//response time
 	//turnaround time
 	//processor time
+	ofstream outfile;
+	outfile.open("stats.txt");
+
+	if (outfile.fail()) {
+		cout << "failed to open file" << endl;
+		return;
+	}
+
+	double num_processes = (double)process_table.size();
+	double through_put = num_processes / current_time;
+	double processor_utilization = processor_time / (double)current_time;
+	double total_wait = 0;
+	double total_response = 0;
+	double total_turnaround = 0;
+	unordered_map<int, Process*>::iterator it = process_table.begin();
+	for (it; it != process_table.end(); ++it) {
+		total_wait += it->second->getCpuWait();
+		total_response += it->second->getResponseTime();
+		total_turnaround += it->second->getTurnaroundTime();
+	}
+	double avg_wait = total_wait / num_processes;
+	double avg_response = total_response / num_processes;
+	double avg_turnaround = total_turnaround / num_processes;
+
+	outfile << "Sheduler type: " << sched_type << endl;
+	outfile << "Throughput: " << through_put << " processes/ms" << endl;
+	outfile << "Average wait time: " << avg_wait << " ms" << endl;
+	outfile << "Average response time: " << avg_response << " ms" << endl;
+	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
+	outfile << "Process utilization: " << processor_utilization * 100 << "%" << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
@@ -113,19 +148,24 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 	cout << "Successfully read from \"" << file_name << "\"" << endl;
 }
 
+bool  pCompare(Process* lhs, Process* rhs) {
+	return lhs->getArrivalTime() < rhs->getArrivalTime();
+}
+
 void OperatingSystem::runProcesses() {
 	//load initial processes to scheduler
 	unordered_map<int, Process*>::iterator it = process_table.begin();
-	vector<Process> processList;
+	vector<Process*> processList;
 	for (it; it != process_table.end(); ++it) {
-		processList.push_back(*it->second);
+		processList.push_back(it->second);
 	}
 	//sort processes based off of arrival time
-	sort(processList.begin(), processList.end());
+	sort(processList.begin(), processList.end(), pCompare);
 	for (int i = 0; i < processList.size(); i++) {
-		s->addProcess(&processList[i]);
+		cout << "PID: " << processList[i]->getId() << endl;
+		s->addProcess(processList[i]);
 	}
-	int current_time = 0;
+	current_time = 0;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
