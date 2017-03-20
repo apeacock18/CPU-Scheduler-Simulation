@@ -5,7 +5,28 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 }
 
 OperatingSystem::OperatingSystem(SchedulerType type) {
-	initScheduler(type);
+	switch (type)
+	{
+	case FIRST_COME_FIRST_SERVE:
+		sched_type = "FIRST_COME_FIRST_SERVE";
+		s = new FirstComeFirstServe();
+		break;
+	case ROUND_ROBIN:
+		sched_type = "ROUND_ROBIN";
+		s = new RoundRobin();
+		break;
+	case SMALLEST_PROCESS_NEXT:
+		sched_type = "SMALLEST_PROCESS_NEXT";
+		s = new SmallestProcessNext();
+		break;
+	case MULTILEVEL_FEEBACK_QUEUE:
+		sched_type = "MULTILEVEL_FEEBACK_QUEUE";
+		s = new MultilevelFeedbackQueue();
+		break;
+	default:
+		sched_type = "NO_SCHEDULER";
+		break;
+	}
 	processor_time = 0;
 	current_time = 0;
 }
@@ -16,11 +37,41 @@ void OperatingSystem::generateStatistics() {
 	//response time
 	//turnaround time
 	//processor time
+	ofstream outfile;
+	outfile.open("stats.txt");
+
+	if (outfile.fail()) {
+		cout << "failed to open file" << endl;
+		return;
+	}
+
+	double num_processes = (double)process_table.size();
+	double through_put = num_processes / current_time;
+	double processor_utilization = processor_time / (double)current_time;
+	double total_wait = 0;
+	double total_response = 0;
+	double total_turnaround = 0;
+	unordered_map<int, Process*>::iterator it = process_table.begin();
+	for (it; it != process_table.end(); ++it) {
+		total_wait += it->second->getCpuWait();
+		total_response += it->second->getResponseTime();
+		total_turnaround += it->second->getTurnaroundTime();
+	}
+	double avg_wait = total_wait / num_processes;
+	double avg_response = total_response / num_processes;
+	double avg_turnaround = total_turnaround / num_processes;
+
+	outfile << "Sheduler type: " << sched_type << endl;
+	outfile << "Throughput: " << through_put << " processes/ms" << endl;
+	outfile << "Average wait time: " << avg_wait << " ms" << endl;
+	outfile << "Average response time: " << avg_response << " ms" << endl;
+	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
+	outfile << "Process utilization: " << processor_utilization * 100 << "%" << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
-	//time_t seed = time(NULL);
-	//srand(seed);
+	time_t seed = time(NULL);
+	srand(seed);
 
 	ofstream outfile;
 	outfile.open(file_name);
@@ -95,39 +146,32 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 
 	infile.close();
 	cout << "Successfully read from \"" << file_name << "\"" << endl;
+}
 
-	//dummy process until we can read in from file
-	/*vector<int> bursts1 = { 3, 9, 5 };
-	Process* p1 = new Process(1, 0, bursts1);
-	process_table.insert(make_pair(p1->getId(), p1));
-
-	vector<int> bursts2 = { 1, 3, 7 };
-	Process* p2 = new Process(2, 2, bursts2);
-	process_table.insert(make_pair(p2->getId(), p2));*/
+bool  pCompare(Process* lhs, Process* rhs) {
+	return lhs->getArrivalTime() < rhs->getArrivalTime();
 }
 
 void OperatingSystem::runProcesses() {
+	//load initial processes to scheduler
 	unordered_map<int, Process*>::iterator it = process_table.begin();
+	vector<Process*> processList;
 	for (it; it != process_table.end(); ++it) {
-		//TODO: add processes based on arrival time
-		s->addProcess(it->second);
+		processList.push_back(it->second);
 	}
-
-	int current_time = 0;
-	Process* last_process = nullptr;
+	//sort processes based off of arrival time
+	sort(processList.begin(), processList.end(), pCompare);
+	for (int i = 0; i < processList.size(); i++) {
+		cout << "PID: " << processList[i]->getId() << endl;
+		s->addProcess(processList[i]);
+	}
+	current_time = 0;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
 		//get process to execute next on CPU from scheduler
 		Process* p = s->schedule();
-		if (p != last_process && p != nullptr) {
-			cout << "Executing context switch. ";
-			current_time += 3;
-			cout << "Time is now " << current_time << endl;
-		}
-		//cout << p->getBurstIndex() << endl;
 		//progress I/O queue
-		//if (p != nullptr) cout << "Current PID: " << p->getId() << endl;
 		updateIoQueue();
 
 		if (p == nullptr) { //TODO: and no more processes will arrive
@@ -153,9 +197,7 @@ void OperatingSystem::runProcesses() {
 			io_queue.push(p);
 		}
 
-
 		++current_time;
-		last_process = p;
 	}
 }
 
@@ -171,25 +213,5 @@ void OperatingSystem::updateIoQueue() {
 				s->addProcess(front);
 			}
 		}
-	}
-}
-
-void OperatingSystem::initScheduler(SchedulerType type) {
-	switch (type)
-	{
-	case FIRST_COME_FIRST_SERVE:
-		s = new FirstComeFirstServe();
-		break;
-	case ROUND_ROBIN:
-		s = new RoundRobin();
-		break;
-	case SMALLEST_PROCESS_NEXT:
-		s = new SmallestProcessNext();
-		break;
-	case MULTILEVEL_FEEBACK_QUEUE:
-		s = new MultilevelFeedbackQueue();
-		break;
-	default:
-		break;
 	}
 }

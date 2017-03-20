@@ -3,16 +3,16 @@
 using namespace std;
 
 int main() {
-	OperatingSystem os = OperatingSystem(SchedulerType::MULTILEVEL_FEEBACK_QUEUE);
-	os.generateProcessFile("process_list.txt", 3);
+	OperatingSystem os = OperatingSystem(SchedulerType::ROUND_ROBIN);
+	//os.generateProcessFile("process_list.txt", 12);
 	os.readProcessesFromFile("process_list.txt");
 	os.runProcesses();
-	/*
-	cout << endl << "///////////////////////////////////////////////////////////////////" << endl << "///////////////////////////////////////////////////////////////////" <<endl <<endl;
-	os = OperatingSystem(SchedulerType::SMALLEST_PROCESS_NEXT);
-	os.readProcessesFromFile("process_list.txt");
-	os.runProcesses();
-	*/
+	os.generateStatistics();
+
+	//cout << endl << "///////////////////////////////////////////////////////////////////" << endl << "///////////////////////////////////////////////////////////////////" <<endl <<endl;
+	//os = OperatingSystem(SchedulerType::SMALLEST_PROCESS_NEXT);
+	//os.readProcessesFromFile("process_list.txt");
+	//os.runProcesses();
 
 
 	return 0;

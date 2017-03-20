@@ -1,0 +1,6 @@
+Sheduler type: ROUND_ROBIN
+Throughput: 0.0364742 processes/ms
+Average wait time: 0 ms
+Average response time: 15.25 ms
+Average turnaround time: -8.4215e+08 ms
+Process utilization: 0%
