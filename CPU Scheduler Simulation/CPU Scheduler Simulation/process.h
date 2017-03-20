@@ -57,6 +57,8 @@ public:
 	**/
 	int io(int current_time);
 
+	void updateExitTime(int current_time) { exit_time = current_time; }
+
 	/* Updates this process's CPU wait time */
 	void updateCpuWaitTime(int current_time);
 	/* Updates this process's IO wait time */

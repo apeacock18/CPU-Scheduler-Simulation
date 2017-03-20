@@ -3,8 +3,8 @@
 using namespace std;
 
 int main() {
-	OperatingSystem os = OperatingSystem(SchedulerType::ROUND_ROBIN);
-	//os.generateProcessFile("process_list.txt", 12);
+	OperatingSystem os = OperatingSystem(SchedulerType::SMALLEST_PROCESS_NEXT);
+	os.generateProcessFile("process_list.txt", 12);
 	os.readProcessesFromFile("process_list.txt");
 	os.runProcesses();
 	os.generateStatistics();
