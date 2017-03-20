@@ -6,28 +6,31 @@
 
 using namespace std;
 
-FirstComeFirstServe::FirstComeFirstServe() : Scheduler(), q() {
+FirstComeFirstServe::FirstComeFirstServe(int num_of_cores = 1) : Scheduler(), q(), multicore_processes(num_of_cores, nullptr) {
+	current_core_index = 0;
 
 }
 
 
 Process* FirstComeFirstServe::schedule() {
 	cout << "Scheduling FCFS..." << endl;
+	Process* to_return = nullptr;
 
-	if (current_process && current_process->isCpuBurst()) {
-		return current_process;
+	if (multicore_processes[current_core_index] && multicore_processes[current_core_index]->isCpuBurst()) {
+		to_return = multicore_processes[current_core_index];
 	}
-
 	else if (!q.empty()) {
-		current_process = q.front();
+		multicore_processes[current_core_index] = q.front();
 		q.pop();
-		return current_process;
+		to_return = multicore_processes[current_core_index];
 	}
 	else {
-		current_process = nullptr;
-		return current_process;
+		multicore_processes[current_core_index] = nullptr;
+		to_return = multicore_processes[current_core_index];
 	}
-	return nullptr;
+
+	current_core_index = (current_core_index + 1) % multicore_processes.size();
+	return to_return;
 }
 
 void FirstComeFirstServe::addProcess(Process* p) {

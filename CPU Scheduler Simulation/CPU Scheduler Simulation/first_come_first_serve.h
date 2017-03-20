@@ -6,10 +6,13 @@
 class FirstComeFirstServe : public Scheduler {
 private:
 	queue<Process*> q;
+	vector<Process*> multicore_processes;
+	int num_of_cores;
+	int current_core_index;
 
 public:
 	//no arg construtor 
-	FirstComeFirstServe();
+	FirstComeFirstServe(int num_of_cores);
 
 	//getters
 	queue<Process*> getQueues() {
