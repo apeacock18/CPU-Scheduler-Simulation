@@ -9,7 +9,7 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	{
 	case FIRST_COME_FIRST_SERVE:
 		sched_type = "FIRST_COME_FIRST_SERVE";
-		s = new FirstComeFirstServe();
+		s = new FirstComeFirstServe(1);
 		break;
 	case ROUND_ROBIN:
 		sched_type = "ROUND_ROBIN";
