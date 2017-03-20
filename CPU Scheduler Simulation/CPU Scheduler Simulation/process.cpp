@@ -39,7 +39,7 @@ int Process::io(int current_time) {
 		return cpu(current_time);
 	}
 
-	last_in_io = current_time;
+	updateIoWaitTime(current_time);
 
 	return executeBurst();
 }

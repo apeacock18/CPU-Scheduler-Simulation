@@ -27,6 +27,7 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 		sched_type = "NO_SCHEDULER";
 		break;
 	}
+	idle_time = 0;
 	processor_time = 0;
 	current_time = 0;
 }
@@ -62,12 +63,14 @@ void OperatingSystem::generateStatistics() {
 	double avg_turnaround = total_turnaround / num_processes;
 
 	outfile << "Sheduler type: " << sched_type << endl;
+	outfile << "Total runtime: " << current_time << " ms" << endl;
 	outfile << "Throughput: " << through_put << " processes/ms" << endl;
 	outfile << "Average wait time: " << avg_wait << " ms" << endl;
 	outfile << "Average response time: " << avg_response << " ms" << endl;
 	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
-	outfile << "Process utilization: " << processor_utilization * 100 << "%" << endl;
-	outfile << "Idle time: " << delete_me << endl;
+	outfile << "CPU utilization: " << processor_utilization * 100 << "%" << endl;
+	outfile << "CPU time: " << processor_time << " ms" << endl;
+	outfile << "Idle time: " << idle_time << " ms" << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {
@@ -167,11 +170,18 @@ void OperatingSystem::runProcesses() {
 		s->addProcess(processList[i]);
 	}
 	current_time = 0;
+	int current_pid = -1;
 	while (true) {
 		cout << "Time is " << current_time << endl;
 
 		//get process to execute next on CPU from scheduler
 		Process* p = s->schedule();
+		if (p && p->getId() != current_pid) {
+			//process has switched
+			//update wait time for newly arrived process
+			p->updateCpuWaitTime(current_time);
+			current_pid = p->getId();
+		}
 		//progress I/O queue
 		updateIoQueue();
 
@@ -183,7 +193,7 @@ void OperatingSystem::runProcesses() {
 				break;
 			}
 			else {
-				delete_me++;
+				idle_time++;
 				//wait for processes in I/O queue
 				cout << io_queue.size() << " processes still in IO" << endl;
 				++current_time;
