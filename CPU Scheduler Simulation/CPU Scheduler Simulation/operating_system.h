@@ -48,10 +48,11 @@ private:
 	unordered_map<int, Process*> process_table;
 	/* Contains a pointer to every process, sorted by arrival time */
 	priority_queue<Process*, vector<Process*>, ArrivalComparator> arrival_queue;
+	/* Accumulated processor time across simulation */
 	int processor_time;
 	int current_time;
+	/* Accumulated idle time across simulation */
 	int idle_time;
-	int delete_me = 0;
 	int num_of_cores;
 
 	int generateRandomNumberInBounds(int min, int max);
@@ -83,8 +84,5 @@ public:
 
 	/* Decrements current IO burst on process at front of queue and removes from queue if finished with IO */
 	void updateIoQueue();
-
-	/* Generates stats */
-	void initScheduler(SchedulerType);
 
 };

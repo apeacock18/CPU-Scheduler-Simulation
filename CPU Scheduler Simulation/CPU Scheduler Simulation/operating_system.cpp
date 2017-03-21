@@ -18,6 +18,7 @@ void OperatingSystem::initializeArrivalQueue() {
 void OperatingSystem::checkForNewlyArrivedProcesses() {
 	if (!allProcessesHaveArrived()) {
 		Process* earliest = arrival_queue.top();
+		//if a process arrives at this instant, add it to the scheduler
 		if (current_time == earliest->getArrivalTime()) {
 			cout << "Adding process #" << earliest->getId() << " to scheduler" << endl;
 			s->addProcess(earliest);
@@ -214,11 +215,16 @@ void OperatingSystem::runProcesses() {
 	current_time = 0;
 	int current_pid = -1;
 	bool all_processes_finished = false;
+	//used to handle context switches across multiple cores
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
+
 	while (!all_processes_finished) {
 		cout << endl << "TIME: " << current_time << endl;
 		checkForNewlyArrivedProcesses();
+
+		//run CPU burst on each core
 		for (int i = 0; i < num_of_cores; i++) {
+			//if the core is in the middle of a context switch
 			if (--core_switch_time_remaining[i] > 0) {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				if (core_switch_time_remaining[i] != 0) {
@@ -244,15 +250,17 @@ void OperatingSystem::runProcesses() {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				continue;
 			}
+
 			//progress I/O queue on first core schedule (per tick)
 			if (i == 0) {
 				updateIoQueue();
 			}
 
+			//if nothing returned from scheduler, i.e. nothing to schedule
 			if (p == nullptr) {
-				//no process to execute from ready queue
+				//if no processes remain in ready or I/O queue
 				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
-					//no processes remain in ready or I/O queue.
+					
 					if (allProcessesHaveArrived())
 					{
 						//all processes handled from input file. end program.
@@ -263,27 +271,28 @@ void OperatingSystem::runProcesses() {
 						break;
 					}
 					//let the program finish if time has exceeded limit
-					if (current_time > 5000) {
+					else if (current_time > 5000) {
 						cout << "Program timing out..." << endl;
 						all_processes_finished = true;
 						//decrement current_time to keep stats accurate
 						current_time--;
 						break;
 					}
-					//wait for next process to arrive
-					idle_time++;
-					cout << "Waiting for " << arrival_queue.size() << " processes to arrive..." << endl;
-					continue;
+					else {
+						//wait for next process to arrive
+						idle_time++;
+						cout << "Waiting for " << arrival_queue.size() << " processes to arrive..." << endl;
+						continue;
+					}
 				}
+				//otherwise, a process is still waiting in the ready or I/O queue - we need to wait for them
 				else {
 					idle_time++;
-					//wait for processes in I/O queue
 					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler " << endl;
 					continue;
 				}
 			}
 
-			//increment processor time
 			processor_time++;
 			current_pid = p->getId();
 			cout << "Running process with ID " << p->getId();
@@ -308,11 +317,12 @@ void OperatingSystem::runProcesses() {
 void OperatingSystem::updateIoQueue() {
 	if (!io_queue.empty()) {
 		Process* front = io_queue.front();
-		//process io for one tick
-		//cout << "updateIoQueue() - PID: " << front->getId() << endl;
+		//process I/O burst of front process
 		int io_remaining = front->io(current_time);
+		//if done with I/O
 		if (io_remaining <= 0) {
 			io_queue.pop();
+			//add back to ready queue if there are still bursts left
 			if (!front->isFinished()) {
 				s->addProcess(front);
 			}
