@@ -6,6 +6,21 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
 
+void OperatingSystem::checkForNewlyArrivedProcesses() {
+	if (!allProcessesHaveArrived()) {
+		Process* earliest_process = process_list[process_list_index];
+		if (earliest_process->getArrivalTime() <= current_time) {
+			cout << "Process " << earliest_process->getId() << " has arrived!" << endl;
+			s->addProcess(earliest_process);
+			++process_list_index;
+		}
+	}
+}
+
+bool OperatingSystem::allProcessesHaveArrived() {
+	return (process_list_index >= process_list.size());
+}
+
 OperatingSystem::OperatingSystem(SchedulerType type) {
 	switch (type)
 	{
@@ -172,25 +187,25 @@ bool  pCompare(Process* lhs, Process* rhs) {
 	return lhs->getArrivalTime() < rhs->getArrivalTime();
 }
 
-void OperatingSystem::runProcesses() {
-	//load initial processes to scheduler
+void OperatingSystem::initializeProcessList() {
 	unordered_map<int, Process*>::iterator it = process_table.begin();
-	vector<Process*> processList;
 	for (it; it != process_table.end(); ++it) {
-		processList.push_back(it->second);
+		process_list.push_back(it->second);
 	}
 	//sort processes based off of arrival time
-	sort(processList.begin(), processList.end(), pCompare);
-	for (int i = 0; i < processList.size(); i++) {
-		cout << "PID: " << processList[i]->getId() << endl;
-		s->addProcess(processList[i]);
-	}
+	sort(process_list.begin(), process_list.end(), pCompare);
+	process_list_index = 0;
+}
+
+void OperatingSystem::runProcesses() {
+	initializeProcessList();
 	current_time = 0;
 	int current_pid = -1;
 	bool all_processes_finished = false;
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	while (!all_processes_finished) {
 		cout << "Time is " << current_time << endl;
+		checkForNewlyArrivedProcesses();
 		for (int i = 0; i < num_of_cores; i++) {
 			if (core_switch_time_remaining[i] > 0) {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
@@ -215,9 +230,9 @@ void OperatingSystem::runProcesses() {
 				updateIoQueue();
 			}
 
-			if (p == nullptr) { //TODO: and no more processes will arrive
+			if (p == nullptr) {
 				//no process to execute from ready queue
-				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+				if (io_queue.empty() && s->getNumInReadyQueue() == 0 && allProcessesHaveArrived()) {
 					//no processes remain in ready or I/O queue. Abort.
 					cout << "No processes remaining." << endl;
 					all_processes_finished = true;
@@ -226,7 +241,8 @@ void OperatingSystem::runProcesses() {
 				else {
 					idle_time++;
 					//wait for processes in I/O queue
-					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler " << endl;
+					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler, ";
+					cout << process_list.size() - process_list_index << " still to arrive " << endl;
 					continue;
 				}
 			}
