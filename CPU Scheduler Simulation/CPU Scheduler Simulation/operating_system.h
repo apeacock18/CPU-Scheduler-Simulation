@@ -23,7 +23,10 @@ enum SchedulerType {
 	FIRST_COME_FIRST_SERVE,
 	ROUND_ROBIN,
 	SMALLEST_PROCESS_NEXT,
-	MULTILEVEL_FEEBACK_QUEUE
+	MULTILEVEL_FEEBACK_QUEUE,
+	FOUR_CORE_FCFS,
+	EIGHT_CORE_FCFS
+	
 };
 
 class Scheduler;
@@ -38,6 +41,8 @@ private:
 	int processor_time;
 	int current_time;
 	int idle_time;
+	int delete_me = 0;
+	int num_of_cores;
 
 	int generateRandomNumberInBounds(int min, int max);
 

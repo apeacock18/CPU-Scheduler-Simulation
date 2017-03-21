@@ -1,5 +1,7 @@
 #include "operating_system.h"
 
+using namespace std;
+
 int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
@@ -10,18 +12,32 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	case FIRST_COME_FIRST_SERVE:
 		sched_type = "FIRST_COME_FIRST_SERVE";
 		s = new FirstComeFirstServe(1);
+		num_of_cores = 1;
+		break;
+	case FOUR_CORE_FCFS:
+		sched_type = "FOUR_CORE_FCFS";
+		s = new FirstComeFirstServe(4);
+		num_of_cores = 4;
+		break;
+	case EIGHT_CORE_FCFS:
+		sched_type = "EIGHT_CORE_FCFS";
+		s = new FirstComeFirstServe(8);
+		num_of_cores = 8;
 		break;
 	case ROUND_ROBIN:
 		sched_type = "ROUND_ROBIN";
 		s = new RoundRobin();
+		num_of_cores = 1;
 		break;
 	case SMALLEST_PROCESS_NEXT:
 		sched_type = "SMALLEST_PROCESS_NEXT";
 		s = new SmallestProcessNext();
+		num_of_cores = 1;
 		break;
 	case MULTILEVEL_FEEBACK_QUEUE:
 		sched_type = "MULTILEVEL_FEEBACK_QUEUE";
 		s = new MultilevelFeedbackQueue();
+		num_of_cores = 1;
 		break;
 	default:
 		sched_type = "NO_SCHEDULER";
@@ -171,54 +187,70 @@ void OperatingSystem::runProcesses() {
 	}
 	current_time = 0;
 	int current_pid = -1;
-	while (true) {
+	bool all_processes_finished = false;
+	vector<int> core_switch_time_remaining(num_of_cores, 0);
+	while (!all_processes_finished) {
 		cout << "Time is " << current_time << endl;
-
-		//get process to execute next on CPU from scheduler
-		Process* p = s->schedule();
-		if (p && p->getId() != current_pid) {
-			//process has switched
-			//update wait time for newly arrived process
-			p->updateCpuWaitTime(current_time);
-			current_pid = p->getId();
-		}
-		//progress I/O queue
-		updateIoQueue();
-
-		if (p == nullptr) { //TODO: and no more processes will arrive
-			//no process to execute from ready queue
-			if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
-				//no processes remain in ready or I/O queue. Abort.
-				cout << "No processes remaining." << endl;
-				break;
+		for (int i = 0; i < num_of_cores; i++) {
+			if (core_switch_time_remaining[i] > 0) {
+				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
+				--core_switch_time_remaining[i];
+				if (core_switch_time_remaining[i] != 0)
+					continue;
 			}
-			else {
-				idle_time++;
-				//wait for processes in I/O queue
-				cout << io_queue.size() << " processes still in IO" << endl;
-				++current_time;
+
+			//get process to execute next on CPU from scheduler
+			Process* p = s->schedule();
+			if (p && p->getId() != current_pid) {
+				//process has switched
+				//update wait time for newly arrived process
+				p->updateCpuWaitTime(current_time);
+				current_pid = p->getId();
+				//set core to switching
+				core_switch_time_remaining[i] = 3;
 				continue;
 			}
-		}
-		//increment processor time
-		processor_time++;
-		cout << "Running process with ID " << p->getId();
-		cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
-		//progress CPU burst of current process
-		int cpu_remaining = p->cpu(current_time);
-		cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
-		//check if current burst has finished
-		if (cpu_remaining <= 0) {
-			//set process exit time
-			p->updateExitTime(current_time);
-			if (!p->isFinished()) {
-				io_queue.push(p);
+			//progress I/O queue on first core schedule (per tick)
+			if (i == 0) {
+				updateIoQueue();
 			}
-		}
 
+			if (p == nullptr) { //TODO: and no more processes will arrive
+				//no process to execute from ready queue
+				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
+					//no processes remain in ready or I/O queue. Abort.
+					cout << "No processes remaining." << endl;
+					all_processes_finished = true;
+					break;
+				}
+				else {
+					idle_time++;
+					//wait for processes in I/O queue
+					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler " << endl;
+					continue;
+				}
+			}
+
+			//increment processor time
+			processor_time++;
+			cout << "Running process with ID " << p->getId();
+			cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
+			//progress CPU burst of current process
+			int cpu_remaining = p->cpu(current_time);
+			cout << "Process now has " << cpu_remaining << " ms remaining " << endl;
+			//check if current burst has finished
+			if (cpu_remaining <= 0) {
+				//set process exit time
+				p->updateExitTime(current_time);
+				if (!p->isFinished()) {
+					io_queue.push(p);
+				}
+			}			
+		}
 		++current_time;
 	}
 }
+
 
 void OperatingSystem::updateIoQueue() {
 	if (!io_queue.empty()) {

@@ -3,9 +3,9 @@
 using namespace std;
 
 int main() {
-	OperatingSystem os = OperatingSystem(SchedulerType::FIRST_COME_FIRST_SERVE);
+	OperatingSystem os = OperatingSystem(SchedulerType::FOUR_CORE_FCFS);
 	//os.generateProcessFile("process_list.txt", 12);
-	os.readProcessesFromFile("test_case.txt");
+	os.readProcessesFromFile("process_list.txt");
 	os.runProcesses();
 	os.generateStatistics();
 
