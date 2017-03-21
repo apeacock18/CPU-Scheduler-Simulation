@@ -1,9 +1,33 @@
+PID:                     1
+Arrival time:            0 ms
+Exit time:               2 ms
+Time to completion:      2 ms
+Total CPU wait:          0 ms
+Total IO wait:           0 ms
+Response time:           0 ms
+
+PID:                     2
+Arrival time:            15 ms
+Exit time:               22 ms
+Time to completion:      7 ms
+Total CPU wait:          15 ms
+Total IO wait:           0 ms
+Response time:           3 ms
+
+PID:                     3
+Arrival time:            4 ms
+Exit time:               9 ms
+Time to completion:      5 ms
+Total CPU wait:          4 ms
+Total IO wait:           0 ms
+Response time:           3 ms
+
 Sheduler type: FIRST_COME_FIRST_SERVE
-Total runtime: 22 ms
-Throughput: 0.136364 processes/ms
-Average wait time: 12 ms
-Average response time: 3 ms
-Average turnaround time: 15.3333 ms
-CPU utilization: 100%
-CPU time: 22 ms
-Idle time: 0 ms
+Total runtime: 23 ms
+Throughput: 0.130435 processes/ms
+Average wait time: 6.33333 ms
+Average response time: 2 ms
+Average turnaround time: 4.66667 ms
+CPU utilization: 73.913%
+CPU time: 17 ms
+Idle time: 6 ms

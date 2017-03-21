@@ -71,6 +71,8 @@ public:
 
 	/* @returns -1 if the process hasn't run yet, and the response time if it has */
 	int getResponseTime();
+	/* @returns -1 if the process hasn't run yet, and the response time if it has */
+	int getExitTime() { return exit_time; }
 	/* @returns -1 if the process isn't finished yet, and the turnaround time if it has */
 	int getTurnaroundTime();
 };

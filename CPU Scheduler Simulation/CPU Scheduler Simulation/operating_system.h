@@ -1,5 +1,8 @@
 #pragma once
 
+//verbose logs for testing
+#define LOG_VERBOSE
+
 #include <queue>
 #include <unordered_map>
 #include <fstream>
@@ -7,6 +10,7 @@
 #include <sstream>
 #include <iterator>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
 
@@ -28,9 +32,6 @@ enum SchedulerType {
 	EIGHT_CORE_FCFS
 	
 };
-
-class Scheduler;
-class Process;
 
 class OperatingSystem {
 private:

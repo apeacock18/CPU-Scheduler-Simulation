@@ -78,6 +78,22 @@ void OperatingSystem::generateStatistics() {
 	double avg_response = total_response / num_processes;
 	double avg_turnaround = total_turnaround / num_processes;
 
+	const int col_width = 25;
+
+	#ifdef LOG_VERBOSE
+	it = process_table.begin();
+	for (it; it != process_table.end(); ++it) {
+		Process* pr = it->second;
+		outfile << left << setw(col_width) << "PID: " << pr->getId() << endl;
+		outfile << left << setw(col_width) << "Arrival time: " << pr->getArrivalTime() << " ms" << endl;
+		outfile << left << setw(col_width) << "Exit time: " << pr->getExitTime() << " ms" << endl;
+		outfile << left << setw(col_width) << "Time to completion: " << pr->getExitTime() - pr->getArrivalTime() << " ms" << endl;
+		outfile << left << setw(col_width) << "Total CPU wait: " << pr->getCpuWait() << " ms" << endl;
+		outfile << left << setw(col_width) << "Total IO wait: " << pr->getIoWait() << " ms" << endl;
+		outfile << left << setw(col_width) << "Response time: " << pr->getResponseTime() << " ms" << endl << endl;
+	}
+	#endif
+
 	outfile << "Sheduler type: " << sched_type << endl;
 	outfile << "Total runtime: " << current_time << " ms" << endl;
 	outfile << "Throughput: " << through_put << " processes/ms" << endl;
@@ -175,39 +191,53 @@ bool  pCompare(Process* lhs, Process* rhs) {
 void OperatingSystem::runProcesses() {
 	//load initial processes to scheduler
 	unordered_map<int, Process*>::iterator it = process_table.begin();
-	vector<Process*> processList;
+	vector<Process*> process_input;
+	queue<Process*> processList;
+	//use a vector to sort processes before adding to queue just because
 	for (it; it != process_table.end(); ++it) {
-		processList.push_back(it->second);
+		process_input.push_back(it->second);
 	}
 	//sort processes based off of arrival time
-	sort(processList.begin(), processList.end(), pCompare);
-	for (int i = 0; i < processList.size(); i++) {
-		cout << "PID: " << processList[i]->getId() << endl;
-		s->addProcess(processList[i]);
+	sort(process_input.begin(), process_input.end(), pCompare);
+	for (int i = 0; i < process_input.size(); i++) {
+		cout << "PID: " << process_input[i]->getId() << endl;
+		processList.push(process_input[i]);
 	}
 	current_time = 0;
 	int current_pid = -1;
 	bool all_processes_finished = false;
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	while (!all_processes_finished) {
-		cout << "Time is " << current_time << endl;
+		cout << endl << "TIME: " << current_time << endl;
+		if (!processList.empty() && current_time == processList.front()->getArrivalTime()) {
+			cout << "Adding process #" << processList.front()->getId() << " to scheduler" << endl;
+			s->addProcess(processList.front());
+			processList.pop();
+		}
 		for (int i = 0; i < num_of_cores; i++) {
-			if (core_switch_time_remaining[i] > 0) {
+			if (--core_switch_time_remaining[i] > 0) {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
-				--core_switch_time_remaining[i];
-				if (core_switch_time_remaining[i] != 0)
+				if (core_switch_time_remaining[i] != 0) {
+					processor_time++;
 					continue;
+				}
 			}
 
 			//get process to execute next on CPU from scheduler
 			Process* p = s->schedule();
-			if (p && p->getId() != current_pid) {
+
+			//we assume that the first process ran is arleady loaded into registers
+			//i.e. no context switch required
+			if (p && p->getId() != current_pid && current_pid != -1) {
 				//process has switched
 				//update wait time for newly arrived process
 				p->updateCpuWaitTime(current_time);
 				current_pid = p->getId();
 				//set core to switching
+				processor_time++;
 				core_switch_time_remaining[i] = 3;
+				cout << "SWITCHING PROCESS TO PID " << p->getId() << endl;
+				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				continue;
 			}
 			//progress I/O queue on first core schedule (per tick)
@@ -218,10 +248,28 @@ void OperatingSystem::runProcesses() {
 			if (p == nullptr) { //TODO: and no more processes will arrive
 				//no process to execute from ready queue
 				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
-					//no processes remain in ready or I/O queue. Abort.
-					cout << "No processes remaining." << endl;
-					all_processes_finished = true;
-					break;
+					//no processes remain in ready or I/O queue.
+					if (processList.empty())
+					{
+						//all processes handled from input file. end program.
+						cout << "No processes remaining." << endl;
+						all_processes_finished = true;
+						//decrement current_time to keep stats accurate
+						current_time--;
+						break;
+					}
+					//let the program finish if time has exceeded limit
+					if (current_time > 5000) {
+						cout << "Program timing out..." << endl;
+						all_processes_finished = true;
+						//decrement current_time to keep stats accurate
+						current_time--;
+						break;
+					}
+					//wait for next process to arrive
+					idle_time++;
+					cout << "Waiting for process..." << endl;
+					continue;
 				}
 				else {
 					idle_time++;
@@ -233,6 +281,7 @@ void OperatingSystem::runProcesses() {
 
 			//increment processor time
 			processor_time++;
+			current_pid = p->getId();
 			cout << "Running process with ID " << p->getId();
 			cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
 			//progress CPU burst of current process
