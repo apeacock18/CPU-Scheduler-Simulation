@@ -6,6 +6,22 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
 
+//NOTE: I think I was also trying to implement this, so it might work differently now
+void OperatingSystem::checkForNewlyArrivedProcesses() {
+	if (!allProcessesHaveArrived()) {
+		Process* earliest_process = process_list[process_list_index];
+		if (earliest_process->getArrivalTime() <= current_time) {
+			cout << "Process " << earliest_process->getId() << " has arrived!" << endl;
+			s->addProcess(earliest_process);
+			++process_list_index;
+		}
+	}
+}
+
+bool OperatingSystem::allProcessesHaveArrived() {
+	return (process_list_index >= process_list.size());
+}
+
 OperatingSystem::OperatingSystem(SchedulerType type) {
 	switch (type)
 	{
