@@ -30,6 +30,11 @@ Process* FirstComeFirstServe::schedule() {
 		to_return = multicore_processes[current_core_index];
 	}
 
+	//if a process is about to finish, remove it from the vector so we don't run it again accidentally
+	if (to_return && to_return->getCurrentBurstLength() == 1) {
+		multicore_processes[current_core_index] = nullptr;
+	}
+
 	current_core_index = (current_core_index + 1) % multicore_processes.size();
 	return to_return;
 }
