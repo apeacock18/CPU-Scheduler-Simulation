@@ -44,5 +44,10 @@ void FirstComeFirstServe::addProcess(Process* p) {
 }
 
 int FirstComeFirstServe::getNumInReadyQueue() {
-	return q.size();
+	int num_in_multicore_processes = 0;
+	for (int i = 0; i < num_of_cores; ++i) {
+		if (multicore_processes[i] && !multicore_processes[i]->isFinished())
+			++num_in_multicore_processes;
+	}
+	return q.size() + num_in_multicore_processes;
 }
