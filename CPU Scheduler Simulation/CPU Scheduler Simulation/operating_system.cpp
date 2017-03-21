@@ -188,9 +188,17 @@ void OperatingSystem::runProcesses() {
 	current_time = 0;
 	int current_pid = -1;
 	bool all_processes_finished = false;
+	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	while (!all_processes_finished) {
 		cout << "Time is " << current_time << endl;
 		for (int i = 0; i < num_of_cores; i++) {
+			if (core_switch_time_remaining[i] > 0) {
+				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
+				--core_switch_time_remaining[i];
+				if (core_switch_time_remaining[i] != 0)
+					continue;
+			}
+
 			//get process to execute next on CPU from scheduler
 			Process* p = s->schedule();
 			if (p && p->getId() != current_pid) {
@@ -198,6 +206,9 @@ void OperatingSystem::runProcesses() {
 				//update wait time for newly arrived process
 				p->updateCpuWaitTime(current_time);
 				current_pid = p->getId();
+				//set core to switching
+				core_switch_time_remaining[i] = 3;
+				continue;
 			}
 			//progress I/O queue on first core schedule (per tick)
 			if (i == 0) {
