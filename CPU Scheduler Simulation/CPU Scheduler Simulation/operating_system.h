@@ -39,6 +39,10 @@ private:
 	string sched_type;
 	queue<Process*> io_queue;
 	unordered_map<int, Process*> process_table;
+	/* Contains a pointer to every process, sorted by arrival time */
+	vector<Process*> process_list;
+	/* Index of process that will arrive next, used by checkForNewlyArrivedProcesses */
+	int process_list_index;
 	int processor_time;
 	int current_time;
 	int idle_time;
@@ -46,6 +50,12 @@ private:
 	int num_of_cores;
 
 	int generateRandomNumberInBounds(int min, int max);
+	/* Initializes a vector of processes sorted by arrival time */
+	void initializeProcessList();
+	/* Adds a process to the scheduler if its arrival time matches the current time */
+	void checkForNewlyArrivedProcesses();
+	/* @return true if all processes have arrived */
+	bool allProcessesHaveArrived();
 
 public:
 	OperatingSystem() {}
