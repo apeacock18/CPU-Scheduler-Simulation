@@ -1,9 +1,9 @@
-Sheduler type: SMALLEST_PROCESS_NEXT
-Total runtime: 442 ms
-Throughput: 0.0271493 processes/ms
-Average wait time: 199.75 ms
-Average response time: 116.917 ms
-Average turnaround time: 219.667 ms
-CPU utilization: 99.7738%
-CPU time: 441 ms
-Idle time: 1 ms
+Sheduler type: FIRST_COME_FIRST_SERVE
+Total runtime: 22 ms
+Throughput: 0.136364 processes/ms
+Average wait time: 12 ms
+Average response time: 3 ms
+Average turnaround time: 15.3333 ms
+CPU utilization: 100%
+CPU time: 22 ms
+Idle time: 0 ms

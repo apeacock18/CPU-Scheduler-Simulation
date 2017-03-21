@@ -67,5 +67,8 @@
     <Text Include="process_list.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="test_case.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
