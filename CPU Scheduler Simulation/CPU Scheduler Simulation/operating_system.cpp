@@ -1,5 +1,7 @@
 #include "operating_system.h"
 
+using namespace std;
+
 int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
@@ -185,9 +187,9 @@ void OperatingSystem::runProcesses() {
 	}
 	current_time = 0;
 	int current_pid = -1;
-	while (true) {
+	bool all_processes_finished = false;
+	while (!all_processes_finished) {
 		cout << "Time is " << current_time << endl;
-		bool check_for_break = false;
 		for (int i = 0; i < num_of_cores; i++) {
 			//get process to execute next on CPU from scheduler
 			Process* p = s->schedule();
@@ -207,19 +209,15 @@ void OperatingSystem::runProcesses() {
 				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
 					//no processes remain in ready or I/O queue. Abort.
 					cout << "No processes remaining." << endl;
-					check_for_break = true;
+					all_processes_finished = true;
 					break;
 				}
 				else {
 					idle_time++;
 					//wait for processes in I/O queue
-					cout << io_queue.size() << " processes still in IO" << endl;
-					++current_time;
+					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler " << endl;
 					continue;
 				}
-			}
-			if (check_for_break == true) {
-				break;
 			}
 
 			//increment processor time
