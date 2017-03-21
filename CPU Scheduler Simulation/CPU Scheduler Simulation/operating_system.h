@@ -33,6 +33,13 @@ enum SchedulerType {
 	
 };
 
+/* Comparator used to sort arrival_queue */
+struct ArrivalComparator {
+	bool operator()(Process* const lhs, Process* const rhs) const {
+		return (lhs->getArrivalTime() > rhs->getArrivalTime());
+	}
+};
+
 class OperatingSystem {
 private:
 	Scheduler* s;
@@ -40,9 +47,7 @@ private:
 	queue<Process*> io_queue;
 	unordered_map<int, Process*> process_table;
 	/* Contains a pointer to every process, sorted by arrival time */
-	vector<Process*> process_list;
-	/* Index of process that will arrive next, used by checkForNewlyArrivedProcesses */
-	int process_list_index;
+	priority_queue<Process*, vector<Process*>, ArrivalComparator> arrival_queue;
 	int processor_time;
 	int current_time;
 	int idle_time;
@@ -50,8 +55,8 @@ private:
 	int num_of_cores;
 
 	int generateRandomNumberInBounds(int min, int max);
-	/* Initializes a vector of processes sorted by arrival time */
-	void initializeProcessList();
+	/* Initializes arrival_queue */
+	void initializeArrivalQueue();
 	/* Adds a process to the scheduler if its arrival time matches the current time */
 	void checkForNewlyArrivedProcesses();
 	/* @return true if all processes have arrived */

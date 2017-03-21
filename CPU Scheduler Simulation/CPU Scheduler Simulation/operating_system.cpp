@@ -6,6 +6,30 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
 
+void OperatingSystem::initializeArrivalQueue() {
+	//load initial processes to scheduler
+	unordered_map<int, Process*>::iterator it = process_table.begin();
+	//add to priority queue sorted by arrival time
+	for (it; it != process_table.end(); ++it) {
+		arrival_queue.push(it->second);
+	}
+}
+
+void OperatingSystem::checkForNewlyArrivedProcesses() {
+	if (!allProcessesHaveArrived()) {
+		Process* earliest = arrival_queue.top();
+		if (current_time == earliest->getArrivalTime()) {
+			cout << "Adding process #" << earliest->getId() << " to scheduler" << endl;
+			s->addProcess(earliest);
+			arrival_queue.pop();
+		}
+	}
+}
+
+bool OperatingSystem::allProcessesHaveArrived(){
+	return (arrival_queue.empty());
+}
+
 OperatingSystem::OperatingSystem(SchedulerType type) {
 	switch (type)
 	{
@@ -184,36 +208,16 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 	cout << "Successfully read from \"" << file_name << "\"" << endl;
 }
 
-bool  pCompare(Process* lhs, Process* rhs) {
-	return lhs->getArrivalTime() < rhs->getArrivalTime();
-}
-
 void OperatingSystem::runProcesses() {
-	//load initial processes to scheduler
-	unordered_map<int, Process*>::iterator it = process_table.begin();
-	vector<Process*> process_input;
-	queue<Process*> processList;
-	//use a vector to sort processes before adding to queue just because
-	for (it; it != process_table.end(); ++it) {
-		process_input.push_back(it->second);
-	}
-	//sort processes based off of arrival time
-	sort(process_input.begin(), process_input.end(), pCompare);
-	for (int i = 0; i < process_input.size(); i++) {
-		cout << "PID: " << process_input[i]->getId() << endl;
-		processList.push(process_input[i]);
-	}
+	
+	initializeArrivalQueue();
 	current_time = 0;
 	int current_pid = -1;
 	bool all_processes_finished = false;
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	while (!all_processes_finished) {
 		cout << endl << "TIME: " << current_time << endl;
-		if (!processList.empty() && current_time == processList.front()->getArrivalTime()) {
-			cout << "Adding process #" << processList.front()->getId() << " to scheduler" << endl;
-			s->addProcess(processList.front());
-			processList.pop();
-		}
+		checkForNewlyArrivedProcesses();
 		for (int i = 0; i < num_of_cores; i++) {
 			if (--core_switch_time_remaining[i] > 0) {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
@@ -245,11 +249,11 @@ void OperatingSystem::runProcesses() {
 				updateIoQueue();
 			}
 
-			if (p == nullptr) { //TODO: and no more processes will arrive
+			if (p == nullptr) {
 				//no process to execute from ready queue
 				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
 					//no processes remain in ready or I/O queue.
-					if (processList.empty())
+					if (allProcessesHaveArrived())
 					{
 						//all processes handled from input file. end program.
 						cout << "No processes remaining." << endl;
@@ -268,7 +272,7 @@ void OperatingSystem::runProcesses() {
 					}
 					//wait for next process to arrive
 					idle_time++;
-					cout << "Waiting for process..." << endl;
+					cout << "Waiting for " << arrival_queue.size() << " processes to arrive..." << endl;
 					continue;
 				}
 				else {
