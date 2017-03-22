@@ -238,13 +238,16 @@ void OperatingSystem::runProcesses() {
 		#ifdef WAIT_FOR_INPUT
 			string tmp_input;
 			getline(cin, tmp_input);
+		#else
+			cout << endl;
 		#endif
-		cout << endl << "TIME: " << current_time << endl;
+		cout << "TIME: " << current_time << endl;
 		checkForNewlyArrivedProcesses();
 
 		//run CPU burst on each core
 		for (int i = 0; i < num_of_cores; i++) {
 			//if the core is in the middle of a context switch
+			cout << "CORE #" << i + 1 << endl;
 			if (--core_switch_time_remaining[i] > 0) {
 				exited_context_switch = true;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
@@ -340,7 +343,7 @@ void OperatingSystem::runProcesses() {
 			//check if current burst has finished
 			if (cpu_remaining <= 0) {
 				//set process exit time
-				p->updateExitTime(current_time);
+				p->updateExitTime(current_time + 1);
 				if (!p->isFinished()) {
 					io_queue.push(p);
 				}
