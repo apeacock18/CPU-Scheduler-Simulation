@@ -49,9 +49,14 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 		s = new FirstComeFirstServe(8);
 		num_of_cores = 8;
 		break;
-	case ROUND_ROBIN:
-		sched_type = "ROUND_ROBIN";
-		s = new RoundRobin();
+	case ROUND_ROBIN_QUANTUM_5:
+		sched_type = "ROUND_ROBIN_QUANTUM_5";
+		s = new RoundRobin(5);
+		num_of_cores = 1;
+		break;
+	case ROUND_ROBIN_QUANTUM_20:
+		sched_type = "ROUND_ROBIN_QUANTUM_20";
+		s = new RoundRobin(20);
 		num_of_cores = 1;
 		break;
 	case SMALLEST_PROCESS_NEXT:

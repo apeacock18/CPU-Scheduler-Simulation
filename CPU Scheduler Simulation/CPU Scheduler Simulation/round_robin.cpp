@@ -12,6 +12,12 @@ RoundRobin::RoundRobin() : Scheduler() {
 	isMFQ = false; 
 }
 
+RoundRobin::RoundRobin(int quantum) : Scheduler() {
+	this->quantum = quantum;
+	counter = 0;
+	isMFQ = false;
+}
+
 //what process should be executed this cycle?
 Process* RoundRobin::schedule() {
 	if (!isMFQ) cout << "Scheduling Round Robin..." << endl;

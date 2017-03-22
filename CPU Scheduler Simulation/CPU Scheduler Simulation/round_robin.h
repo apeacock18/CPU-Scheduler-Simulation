@@ -13,6 +13,8 @@ private:
 public:
 	//no arg construtor 
 	RoundRobin();
+	//constructor when quantum is specified
+	RoundRobin(int quantum);
 
 	//getters
 	queue<Process*> getQueue() {
