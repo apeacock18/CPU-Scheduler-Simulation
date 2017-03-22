@@ -254,11 +254,12 @@ void OperatingSystem::runProcesses() {
 				//we still want to update I/O during context switches!
 				if (i == 0) updateIoQueue();
 				if (core_switch_time_remaining[i] != 0) {
+					s->incrementCoreIndex();
 					processor_time++;
 					continue;
 				}
 			}
-
+			/*
 			Process* p;
 			Process* last_process = nullptr;
 			auto last_process_iter = process_table.find(current_pids[i]);
@@ -272,7 +273,9 @@ void OperatingSystem::runProcesses() {
 			else {
 				p = s->schedule();
 			}
+			*/
 
+			Process* p = s->schedule();
 			exited_context_switch = false;
 
 			//progress I/O queue on first core schedule (per tick)

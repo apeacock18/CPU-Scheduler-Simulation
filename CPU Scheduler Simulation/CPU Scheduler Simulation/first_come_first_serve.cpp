@@ -35,7 +35,7 @@ Process* FirstComeFirstServe::schedule() {
 		multicore_processes[current_core_index] = nullptr;
 	}
 
-	current_core_index = (current_core_index + 1) % multicore_processes.size();
+	incrementCoreIndex();
 	return to_return;
 }
 
