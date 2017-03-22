@@ -17,7 +17,7 @@ Process* FirstComeFirstServe::schedule() {
 	cout << "Scheduling FCFS with " << num_of_cores << " cores..." << endl;
 	Process* to_return = nullptr;
 
-	if (multicore_processes[current_core_index] && multicore_processes[current_core_index]->isCpuBurst()) {
+	if (multicore_processes[current_core_index] && multicore_processes[current_core_index]->isCpuBurst() && !multicore_processes[current_core_index]->isFinished()) {
 		to_return = multicore_processes[current_core_index];
 	}
 	else if (!q.empty()) {

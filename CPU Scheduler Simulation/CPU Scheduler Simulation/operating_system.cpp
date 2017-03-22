@@ -218,10 +218,11 @@ void OperatingSystem::runProcesses() {
 	
 	initializeArrivalQueue();
 	current_time = 0;
-	int current_pid = -1;
 	bool all_processes_finished = false;
 	//used to handle context switches across multiple cores
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
+	vector<int> current_pids(num_of_cores, -1);
+	bool exited_context_switch = false;
 
 	while (!all_processes_finished) {
 		cout << endl << "TIME: " << current_time << endl;
@@ -231,6 +232,7 @@ void OperatingSystem::runProcesses() {
 		for (int i = 0; i < num_of_cores; i++) {
 			//if the core is in the middle of a context switch
 			if (--core_switch_time_remaining[i] > 0) {
+				exited_context_switch = true;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				//we still want to update I/O during context switches!
 				if (i == 0) updateIoQueue();
@@ -240,8 +242,21 @@ void OperatingSystem::runProcesses() {
 				}
 			}
 
+			Process* p;
+			Process* last_process = nullptr;
+			auto last_process_iter = process_table.find(current_pids[i]);
+			if (last_process_iter != process_table.end()) last_process = last_process_iter->second;
+			bool last_process_is_valid = last_process && last_process->isCpuBurst() && !last_process->isFinished();
+
 			//get process to execute next on CPU from scheduler
-			Process* p = s->schedule();
+			if (exited_context_switch && last_process_is_valid) {
+				p = process_table[current_pids[i]];
+			}
+			else {
+				p = s->schedule();
+			}
+
+			exited_context_switch = false;
 
 			//progress I/O queue on first core schedule (per tick)
 			if (i == 0) {
@@ -250,15 +265,16 @@ void OperatingSystem::runProcesses() {
 
 			//we assume that the first process ran is arleady loaded into registers
 			//i.e. no context switch required
-			if (p && p->getId() != current_pid && current_pid != -1) {
+			if (p && p->getId() != current_pids[i] && current_pids[i] != -1) {
 				//process has switched
 				//update wait time for newly arrived process
 				p->updateCpuWaitTime(current_time);
-				current_pid = p->getId();
+				int old_id = current_pids[i];
+				current_pids[i] = p->getId();
 				//set core to switching
 				processor_time++;
 				core_switch_time_remaining[i] = 3;
-				cout << "SWITCHING PROCESS TO PID " << p->getId() << endl;
+				cout << "SWITCHING PROCESS FROM PID " << old_id << " TO PID " << p->getId() << endl;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				continue;
 			}
@@ -301,7 +317,7 @@ void OperatingSystem::runProcesses() {
 			}
 
 			processor_time++;
-			current_pid = p->getId();
+			current_pids[i] = p->getId();
 			cout << "Running process with ID " << p->getId();
 			cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
 			//progress CPU burst of current process
