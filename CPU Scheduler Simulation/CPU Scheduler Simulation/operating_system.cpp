@@ -78,6 +78,15 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	current_time = 0;
 }
 
+OperatingSystem::~OperatingSystem() {
+	cout << "Destructor called" << endl;
+	auto table_iter = process_table.begin();
+	for (table_iter; table_iter != process_table.end(); ++table_iter) {
+		delete table_iter->second;
+	}
+
+}
+
 void OperatingSystem::generateStatistics() {
 	//through put
 	//avg wait time

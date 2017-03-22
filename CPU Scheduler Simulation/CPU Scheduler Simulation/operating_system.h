@@ -71,6 +71,8 @@ public:
 	*/
 	OperatingSystem(SchedulerType);
 
+	~OperatingSystem();
+
 	/* Generates stats */
 	void generateStatistics();
 
