@@ -26,6 +26,8 @@ private:
 	int exit_time;
 	/* whether the process is completely done executing */
 	bool is_finished;
+	/* whether the process is currently involved in a context switch */
+	bool is_context_switching;
 
 	/* the time the process first enters the cpu */
 	int first_in_cpu;
@@ -42,9 +44,12 @@ public:
 	int getCpuWait() const { return cpu_wait; }
 	int getIoWait() const { return io_wait; }
 	bool isFinished() const { return is_finished; }
+	bool isContextSwitching() const { return is_context_switching; }
 	int getCurrentBurstLength() const { return bursts[burst_index]; }
 	
 	int getBurstIndex() const { return burst_index; }
+
+	void setIsContextSwitching(bool is_context_switching) { this->is_context_switching = is_context_switching; }
 
 	/**
 	Runs CPU burst.

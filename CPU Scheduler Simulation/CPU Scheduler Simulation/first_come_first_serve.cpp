@@ -31,7 +31,7 @@ Process* FirstComeFirstServe::schedule() {
 	}
 
 	//if a process is about to finish, remove it from the vector so we don't run it again accidentally
-	if (to_return && to_return->getCurrentBurstLength() == 1) {
+	if (to_return && to_return->getCurrentBurstLength() == 1 && !to_return->isContextSwitching()) {
 		multicore_processes[current_core_index] = nullptr;
 	}
 
