@@ -227,6 +227,8 @@ void OperatingSystem::runProcesses() {
 			//if the core is in the middle of a context switch
 			if (--core_switch_time_remaining[i] > 0) {
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
+				//we still want to update I/O during context switches!
+				if (i == 0) updateIoQueue();
 				if (core_switch_time_remaining[i] != 0) {
 					processor_time++;
 					continue;
@@ -235,6 +237,11 @@ void OperatingSystem::runProcesses() {
 
 			//get process to execute next on CPU from scheduler
 			Process* p = s->schedule();
+
+			//progress I/O queue on first core schedule (per tick)
+			if (i == 0) {
+				updateIoQueue();
+			}
 
 			//we assume that the first process ran is arleady loaded into registers
 			//i.e. no context switch required
@@ -249,11 +256,6 @@ void OperatingSystem::runProcesses() {
 				cout << "SWITCHING PROCESS TO PID " << p->getId() << endl;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				continue;
-			}
-
-			//progress I/O queue on first core schedule (per tick)
-			if (i == 0) {
-				updateIoQueue();
 			}
 
 			//if nothing returned from scheduler, i.e. nothing to schedule
@@ -319,9 +321,11 @@ void OperatingSystem::updateIoQueue() {
 		Process* front = io_queue.front();
 		//process I/O burst of front process
 		int io_remaining = front->io(current_time);
+		cout << "Process " << front->getId() << " is running I/O" << endl;
 		//if done with I/O
 		if (io_remaining <= 0) {
 			io_queue.pop();
+			cout << "Process " << front->getId() << " is done with I/O!" << endl;
 			//add back to ready queue if there are still bursts left
 			if (!front->isFinished()) {
 				s->addProcess(front);
