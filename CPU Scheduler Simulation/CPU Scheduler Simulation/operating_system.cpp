@@ -283,7 +283,7 @@ void OperatingSystem::runProcesses() {
 				updateIoQueue();
 			}
 
-			//we assume that the first process ran is arleady loaded into registers
+			//we assume that the first process ran is already loaded into registers
 			//i.e. no context switch required
 			if (p && p->getId() != current_pids[i] && current_pids[i] != -1) {
 				//process has switched
@@ -293,7 +293,7 @@ void OperatingSystem::runProcesses() {
 				current_pids[i] = p->getId();
 				//set core to switching
 				processor_time++;
-				core_switch_time_remaining[i] = 3;
+				core_switch_time_remaining[i] = SWITCH_TIME;
 				cout << "SWITCHING PROCESS FROM PID " << old_id << " TO PID " << p->getId() << endl;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				continue;
@@ -308,14 +308,6 @@ void OperatingSystem::runProcesses() {
 					{
 						//all processes handled from input file. end program.
 						cout << "No processes remaining." << endl;
-						all_processes_finished = true;
-						//decrement current_time to keep stats accurate
-						current_time--;
-						break;
-					}
-					//let the program finish if time has exceeded limit
-					else if (current_time > 5000) {
-						cout << "Program timing out..." << endl;
 						all_processes_finished = true;
 						//decrement current_time to keep stats accurate
 						current_time--;

@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
-	OperatingSystem os = OperatingSystem(SchedulerType::ROUND_ROBIN_QUANTUM_20);
+	OperatingSystem os = OperatingSystem(SchedulerType::FOUR_CORE_FCFS);
 	//os.generateProcessFile("process_list.txt", 12);
 	os.readProcessesFromFile("test_case.txt");
 	os.runProcesses();

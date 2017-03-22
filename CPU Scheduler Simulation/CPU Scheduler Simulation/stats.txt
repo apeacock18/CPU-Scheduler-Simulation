@@ -1,33 +1,33 @@
 PID:                     1
 Arrival time:            0 ms
-Exit time:               3 ms
-Time to completion:      3 ms
+Exit time:               1 ms
+Time to completion:      1 ms
 Total CPU wait:          0 ms
 Total IO wait:           0 ms
 Response time:           0 ms
 
 PID:                     2
 Arrival time:            15 ms
-Exit time:               23 ms
-Time to completion:      8 ms
-Total CPU wait:          15 ms
+Exit time:               19 ms
+Time to completion:      4 ms
+Total CPU wait:          0 ms
 Total IO wait:           0 ms
 Response time:           3 ms
 
 PID:                     3
 Arrival time:            4 ms
-Exit time:               10 ms
-Time to completion:      6 ms
-Total CPU wait:          4 ms
+Exit time:               8 ms
+Time to completion:      4 ms
+Total CPU wait:          0 ms
 Total IO wait:           0 ms
 Response time:           3 ms
 
-Sheduler type: ROUND_ROBIN_QUANTUM_20
-Total runtime: 23 ms
-Throughput: 0.130435 processes/ms
-Average wait time: 6.33333 ms
+Sheduler type: FOUR_CORE_FCFS
+Total runtime: 18 ms
+Throughput: 0.166667 processes/ms
+Average wait time: 0 ms
 Average response time: 2 ms
-Average turnaround time: 5.66667 ms
-CPU utilization: 73.913%
-CPU time: 17 ms
-Idle time: 6 ms
+Average turnaround time: 3 ms
+CPU utilization: 50%
+CPU time: 9 ms
+Idle time: 64 ms

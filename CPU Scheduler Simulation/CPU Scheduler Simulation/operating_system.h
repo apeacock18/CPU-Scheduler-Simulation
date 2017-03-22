@@ -57,6 +57,7 @@ private:
 	/* Accumulated idle time across simulation */
 	int idle_time;
 	int num_of_cores;
+	const int SWITCH_TIME = 3;
 
 	int generateRandomNumberInBounds(int min, int max);
 	/* Initializes arrival_queue */

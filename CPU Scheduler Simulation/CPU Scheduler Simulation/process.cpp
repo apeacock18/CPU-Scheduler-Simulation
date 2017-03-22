@@ -13,6 +13,7 @@ Process::Process(int id, int arrival_time, vector<int> bursts) : bursts(bursts) 
 	first_in_cpu = -1;
 	last_in_cpu = -1;
 	last_in_io = -1;
+	exit_time = -1;
 	is_finished = false;
 }
 
@@ -63,7 +64,7 @@ int Process::executeBurst() {
 
 void Process::updateCpuWaitTime(int current_time) {
 	if (last_in_cpu == -1) {
-		cpu_wait = current_time;
+		cpu_wait = current_time - arrival_time;
 	} 
 	else {
 		cpu_wait += (current_time - last_in_cpu);
@@ -72,7 +73,8 @@ void Process::updateCpuWaitTime(int current_time) {
 
 void Process::updateIoWaitTime(int current_time) {
 	if (last_in_io == -1) {
-		io_wait = current_time;
+		//initialize to 0 first time in I/O
+		io_wait = 0;
 	}
 	else {
 		io_wait += (current_time - last_in_io);
