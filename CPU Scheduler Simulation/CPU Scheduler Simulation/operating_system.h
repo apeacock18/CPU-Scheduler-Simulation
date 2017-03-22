@@ -27,12 +27,20 @@ using namespace std;
 
 enum SchedulerType {
 	FIRST_COME_FIRST_SERVE,
-	ROUND_ROBIN,
+	ROUND_ROBIN_QUANTUM_5,
+	ROUND_ROBIN_QUANTUM_20,
 	SMALLEST_PROCESS_NEXT,
 	MULTILEVEL_FEEBACK_QUEUE,
 	FOUR_CORE_FCFS,
 	EIGHT_CORE_FCFS
 	
+};
+
+/* Comparator used to sort arrival_queue */
+struct ArrivalComparator {
+	bool operator()(Process* const lhs, Process* const rhs) const {
+		return (lhs->getArrivalTime() > rhs->getArrivalTime());
+	}
 };
 
 class OperatingSystem {
@@ -42,18 +50,17 @@ private:
 	queue<Process*> io_queue;
 	unordered_map<int, Process*> process_table;
 	/* Contains a pointer to every process, sorted by arrival time */
-	vector<Process*> process_list;
-	/* Index of process that will arrive next, used by checkForNewlyArrivedProcesses */
-	int process_list_index;
+	priority_queue<Process*, vector<Process*>, ArrivalComparator> arrival_queue;
+	/* Accumulated processor time across simulation */
 	int processor_time;
 	int current_time;
+	/* Accumulated idle time across simulation */
 	int idle_time;
-	int delete_me = 0;
 	int num_of_cores;
 
 	int generateRandomNumberInBounds(int min, int max);
-	/* Initializes a vector of processes sorted by arrival time */
-	void initializeProcessList();
+	/* Initializes arrival_queue */
+	void initializeArrivalQueue();
 	/* Adds a process to the scheduler if its arrival time matches the current time */
 	void checkForNewlyArrivedProcesses();
 	/* @return true if all processes have arrived */
@@ -65,6 +72,8 @@ public:
 	@param type The type of scheduler to create with the OS
 	*/
 	OperatingSystem(SchedulerType);
+
+	~OperatingSystem();
 
 	/* Generates stats */
 	void generateStatistics();
@@ -80,8 +89,5 @@ public:
 
 	/* Decrements current IO burst on process at front of queue and removes from queue if finished with IO */
 	void updateIoQueue();
-
-	/* Generates stats */
-	void initScheduler(SchedulerType);
 
 };

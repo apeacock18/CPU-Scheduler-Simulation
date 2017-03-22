@@ -6,6 +6,31 @@ int OperatingSystem::generateRandomNumberInBounds(int min, int max) {
 	return rand() % (max - min) + min;
 }
 
+void OperatingSystem::initializeArrivalQueue() {
+	//load initial processes to scheduler
+	unordered_map<int, Process*>::iterator it = process_table.begin();
+	//add to priority queue sorted by arrival time
+	for (it; it != process_table.end(); ++it) {
+		arrival_queue.push(it->second);
+	}
+}
+
+void OperatingSystem::checkForNewlyArrivedProcesses() {
+	if (!allProcessesHaveArrived()) {
+		Process* earliest = arrival_queue.top();
+		//if a process arrives at this instant, add it to the scheduler
+		if (current_time == earliest->getArrivalTime()) {
+			cout << "Adding process #" << earliest->getId() << " to scheduler" << endl;
+			s->addProcess(earliest);
+			arrival_queue.pop();
+		}
+	}
+}
+
+bool OperatingSystem::allProcessesHaveArrived(){
+	return (arrival_queue.empty());
+}
+
 OperatingSystem::OperatingSystem(SchedulerType type) {
 	switch (type)
 	{
@@ -24,9 +49,14 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 		s = new FirstComeFirstServe(8);
 		num_of_cores = 8;
 		break;
-	case ROUND_ROBIN:
-		sched_type = "ROUND_ROBIN";
-		s = new RoundRobin();
+	case ROUND_ROBIN_QUANTUM_5:
+		sched_type = "ROUND_ROBIN_QUANTUM_5";
+		s = new RoundRobin(5);
+		num_of_cores = 1;
+		break;
+	case ROUND_ROBIN_QUANTUM_20:
+		sched_type = "ROUND_ROBIN_QUANTUM_20";
+		s = new RoundRobin(20);
 		num_of_cores = 1;
 		break;
 	case SMALLEST_PROCESS_NEXT:
@@ -46,6 +76,15 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 	idle_time = 0;
 	processor_time = 0;
 	current_time = 0;
+}
+
+OperatingSystem::~OperatingSystem() {
+	cout << "Destructor called" << endl;
+	auto table_iter = process_table.begin();
+	for (table_iter; table_iter != process_table.end(); ++table_iter) {
+		delete table_iter->second;
+	}
+
 }
 
 void OperatingSystem::generateStatistics() {
@@ -184,29 +223,16 @@ void OperatingSystem::readProcessesFromFile(string file_name) {
 	cout << "Successfully read from \"" << file_name << "\"" << endl;
 }
 
-bool  pCompare(Process* lhs, Process* rhs) {
-	return lhs->getArrivalTime() < rhs->getArrivalTime();
-}
-
 void OperatingSystem::runProcesses() {
-	//load initial processes to scheduler
-	unordered_map<int, Process*>::iterator it = process_table.begin();
-	vector<Process*> process_input;
-	queue<Process*> processList;
-	//use a vector to sort processes before adding to queue just because
-	for (it; it != process_table.end(); ++it) {
-		process_input.push_back(it->second);
-	}
-	//sort processes based off of arrival time
-	sort(process_input.begin(), process_input.end(), pCompare);
-	for (int i = 0; i < process_input.size(); i++) {
-		cout << "PID: " << process_input[i]->getId() << endl;
-		processList.push(process_input[i]);
-	}
+	
+	initializeArrivalQueue();
 	current_time = 0;
-	int current_pid = -1;
 	bool all_processes_finished = false;
+	//used to handle context switches across multiple cores
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
+	vector<int> current_pids(num_of_cores, -1);
+	bool exited_context_switch = false;
+
 	while (!all_processes_finished) {
 		//step by step for debugging
 		#ifdef WAIT_FOR_INPUT
@@ -214,47 +240,65 @@ void OperatingSystem::runProcesses() {
 			getline(cin, tmp_input);
 		#endif
 		cout << endl << "TIME: " << current_time << endl;
-		if (!processList.empty() && current_time == processList.front()->getArrivalTime()) {
-			cout << "Adding process #" << processList.front()->getId() << " to scheduler" << endl;
-			s->addProcess(processList.front());
-			processList.pop();
-		}
+		checkForNewlyArrivedProcesses();
+
+		//run CPU burst on each core
 		for (int i = 0; i < num_of_cores; i++) {
+			//if the core is in the middle of a context switch
 			if (--core_switch_time_remaining[i] > 0) {
+				exited_context_switch = true;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
+				//we still want to update I/O during context switches!
+				if (i == 0) updateIoQueue();
 				if (core_switch_time_remaining[i] != 0) {
 					processor_time++;
 					continue;
 				}
 			}
 
-			//get process to execute next on CPU from scheduler
-			Process* p = s->schedule();
+			Process* p;
+			Process* last_process = nullptr;
+			auto last_process_iter = process_table.find(current_pids[i]);
+			if (last_process_iter != process_table.end()) last_process = last_process_iter->second;
+			bool last_process_is_valid = last_process && last_process->isCpuBurst() && !last_process->isFinished();
 
-			//we assume that the first process ran is arleady loaded into registers
-			//i.e. no context switch required
-			if (p && p->getId() != current_pid && current_pid != -1) {
-				//process has switched
-				//update wait time for newly arrived process
-				p->updateCpuWaitTime(current_time);
-				current_pid = p->getId();
-				//set core to switching
-				processor_time++;
-				core_switch_time_remaining[i] = 3;
-				cout << "SWITCHING PROCESS TO PID " << p->getId() << endl;
-				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
-				continue;
+			//get process to execute next on CPU from scheduler
+			if (exited_context_switch && last_process_is_valid) {
+				p = process_table[current_pids[i]];
 			}
+			else {
+				p = s->schedule();
+			}
+
+			exited_context_switch = false;
+
 			//progress I/O queue on first core schedule (per tick)
 			if (i == 0) {
 				updateIoQueue();
 			}
 
-			if (p == nullptr) { //TODO: and no more processes will arrive
-				//no process to execute from ready queue
+			//we assume that the first process ran is arleady loaded into registers
+			//i.e. no context switch required
+			if (p && p->getId() != current_pids[i] && current_pids[i] != -1) {
+				//process has switched
+				//update wait time for newly arrived process
+				p->updateCpuWaitTime(current_time);
+				int old_id = current_pids[i];
+				current_pids[i] = p->getId();
+				//set core to switching
+				processor_time++;
+				core_switch_time_remaining[i] = 3;
+				cout << "SWITCHING PROCESS FROM PID " << old_id << " TO PID " << p->getId() << endl;
+				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
+				continue;
+			}
+
+			//if nothing returned from scheduler, i.e. nothing to schedule
+			if (p == nullptr) {
+				//if no processes remain in ready or I/O queue
 				if (io_queue.empty() && s->getNumInReadyQueue() == 0) {
-					//no processes remain in ready or I/O queue.
-					if (processList.empty())
+					
+					if (allProcessesHaveArrived())
 					{
 						//all processes handled from input file. end program.
 						cout << "No processes remaining." << endl;
@@ -264,29 +308,30 @@ void OperatingSystem::runProcesses() {
 						break;
 					}
 					//let the program finish if time has exceeded limit
-					if (current_time > 5000) {
+					else if (current_time > 5000) {
 						cout << "Program timing out..." << endl;
 						all_processes_finished = true;
 						//decrement current_time to keep stats accurate
 						current_time--;
 						break;
 					}
-					//wait for next process to arrive
-					idle_time++;
-					cout << "Waiting for process..." << endl;
-					continue;
+					else {
+						//wait for next process to arrive
+						idle_time++;
+						cout << "Waiting for " << arrival_queue.size() << " processes to arrive..." << endl;
+						continue;
+					}
 				}
+				//otherwise, a process is still waiting in the ready or I/O queue - we need to wait for them
 				else {
 					idle_time++;
-					//wait for processes in I/O queue
 					cout << io_queue.size() << " processes still in IO, " << s->getNumInReadyQueue() << " still in scheduler " << endl;
 					continue;
 				}
 			}
 
-			//increment processor time
 			processor_time++;
-			current_pid = p->getId();
+			current_pids[i] = p->getId();
 			cout << "Running process with ID " << p->getId();
 			cout << " that has " << p->getCurrentBurstLength() << " ms remaining " << endl;
 			//progress CPU burst of current process
@@ -309,11 +354,14 @@ void OperatingSystem::runProcesses() {
 void OperatingSystem::updateIoQueue() {
 	if (!io_queue.empty()) {
 		Process* front = io_queue.front();
-		//process io for one tick
-		//cout << "updateIoQueue() - PID: " << front->getId() << endl;
+		//process I/O burst of front process
 		int io_remaining = front->io(current_time);
+		cout << "Process " << front->getId() << " is running I/O" << endl;
+		//if done with I/O
 		if (io_remaining <= 0) {
 			io_queue.pop();
+			cout << "Process " << front->getId() << " is done with I/O!" << endl;
+			//add back to ready queue if there are still bursts left
 			if (!front->isFinished()) {
 				s->addProcess(front);
 			}
