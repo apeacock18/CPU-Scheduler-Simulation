@@ -208,6 +208,11 @@ void OperatingSystem::runProcesses() {
 	bool all_processes_finished = false;
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	while (!all_processes_finished) {
+		//step by step for debugging
+		#ifdef WAIT_FOR_INPUT
+			string tmp_input;
+			getline(cin, tmp_input);
+		#endif
 		cout << endl << "TIME: " << current_time << endl;
 		if (!processList.empty() && current_time == processList.front()->getArrivalTime()) {
 			cout << "Adding process #" << processList.front()->getId() << " to scheduler" << endl;

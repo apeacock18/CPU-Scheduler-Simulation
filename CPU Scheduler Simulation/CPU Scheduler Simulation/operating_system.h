@@ -2,6 +2,8 @@
 
 //verbose logs for testing
 #define LOG_VERBOSE
+//step by step time
+#define WAIT_FOR_INPUT
 
 #include <queue>
 #include <unordered_map>
