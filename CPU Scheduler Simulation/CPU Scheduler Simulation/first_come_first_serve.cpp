@@ -24,6 +24,7 @@ Process* FirstComeFirstServe::schedule() {
 		multicore_processes[current_core_index] = q.front();
 		q.pop();
 		to_return = multicore_processes[current_core_index];
+		to_return->setIsContextSwitching(true);
 	}
 	else {
 		multicore_processes[current_core_index] = nullptr;

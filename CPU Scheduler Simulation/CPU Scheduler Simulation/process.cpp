@@ -15,6 +15,7 @@ Process::Process(int id, int arrival_time, vector<int> bursts) : bursts(bursts) 
 	last_in_io = -1;
 	exit_time = -1;
 	is_finished = false;
+	is_context_switching = false;
 }
 
 int Process::cpu(int current_time) {

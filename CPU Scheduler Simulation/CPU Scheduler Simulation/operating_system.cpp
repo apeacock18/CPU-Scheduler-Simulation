@@ -231,7 +231,6 @@ void OperatingSystem::runProcesses() {
 	//used to handle context switches across multiple cores
 	vector<int> core_switch_time_remaining(num_of_cores, 0);
 	vector<int> current_pids(num_of_cores, -1);
-	bool exited_context_switch = false;
 
 	while (!all_processes_finished) {
 		//step by step for debugging
@@ -249,7 +248,6 @@ void OperatingSystem::runProcesses() {
 			//if the core is in the middle of a context switch
 			cout << "CORE #" << i + 1 << endl;
 			if (--core_switch_time_remaining[i] > 0) {
-				exited_context_switch = true;
 				cout << "Core is switching, " << core_switch_time_remaining[i] << " ms remaining" << endl;
 				//we still want to update I/O during context switches!
 				if (i == 0) updateIoQueue();
@@ -276,7 +274,6 @@ void OperatingSystem::runProcesses() {
 			*/
 
 			Process* p = s->schedule();
-			exited_context_switch = false;
 
 			//progress I/O queue on first core schedule (per tick)
 			if (i == 0) {
@@ -328,6 +325,7 @@ void OperatingSystem::runProcesses() {
 				}
 			}
 
+			p->setIsContextSwitching(false);
 			processor_time++;
 			current_pids[i] = p->getId();
 			cout << "Running process with ID " << p->getId();
