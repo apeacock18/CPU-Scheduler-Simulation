@@ -22,7 +22,8 @@ RoundRobin::RoundRobin(int quantum) : Scheduler() {
 Process* RoundRobin::schedule() {
 	if (!isMFQ) cout << "Scheduling Round Robin..." << endl;
 	//if current process is not finished, has not hit an I/O burst, and has not exceeded the time quantum
-	if (current_process && !current_process->isFinished() && counter < quantum && current_process->isCpuBurst()) {
+	bool current_process_is_valid = current_process && !current_process->isFinished() && current_process->isCpuBurst();
+	if (current_process_is_valid && counter < quantum) {
 		//increase amount of time taken and keep current_process the same
 		counter++;
 	}
@@ -31,14 +32,14 @@ Process* RoundRobin::schedule() {
 		counter = 1;
 		if (!q.empty()) {
 			//if the current process exceeded the quantum but is otherwise okay...
-			if (current_process && !current_process->isFinished() && current_process->isCpuBurst()) {
+			if (current_process_is_valid) {
 				//place back if CPU time left
 				//if used in a MFQ, the MFQ scheduler will take care of putting it back in the queue
 				if (!isMFQ)
 					q.push(current_process);
 			}
 
-			//pick a process from the queue until you find an unfinished one or the queue empties
+			//pick a process from the queue until you find a valid one or the queue empties
 			bool process_is_invalid = false;
 			do {
 				current_process = q.front();

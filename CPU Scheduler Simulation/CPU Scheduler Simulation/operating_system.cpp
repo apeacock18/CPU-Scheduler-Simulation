@@ -268,21 +268,6 @@ void OperatingSystem::runProcesses() {
 					continue;
 				}
 			}
-			/*
-			Process* p;
-			Process* last_process = nullptr;
-			auto last_process_iter = process_table.find(current_pids[i]);
-			if (last_process_iter != process_table.end()) last_process = last_process_iter->second;
-			bool last_process_is_valid = last_process && last_process->isCpuBurst() && !last_process->isFinished();
-
-			//get process to execute next on CPU from scheduler
-			if (exited_context_switch && last_process_is_valid) {
-				p = process_table[current_pids[i]];
-			}
-			else {
-				p = s->schedule();
-			}
-			*/
 
 			Process* p = s->schedule();
 
@@ -291,9 +276,10 @@ void OperatingSystem::runProcesses() {
 				updateIoQueue();
 			}
 
+			bool process_has_switched = p && p->getId() != current_pids[i] && current_pids[i] != -1;
 			//we assume that the first process ran is already loaded into registers
 			//i.e. no context switch required
-			if (p && p->getId() != current_pids[i] && current_pids[i] != -1) {
+			if (process_has_switched) {
 				//process has switched
 				//update wait time for newly arrived process
 				p->updateCpuWaitTime(current_time);
