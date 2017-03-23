@@ -54,6 +54,16 @@ OperatingSystem::OperatingSystem(SchedulerType type) {
 		s = new RoundRobin(5);
 		num_of_cores = 1;
 		break;
+	case ROUND_ROBIN_QUANTUM_10:
+		sched_type = "ROUND_ROBIN_QUANTUM_10";
+		s = new RoundRobin(10);
+		num_of_cores = 1;
+		break;
+	case ROUND_ROBIN_QUANTUM_15:
+		sched_type = "ROUND_ROBIN_QUANTUM_15";
+		s = new RoundRobin(15);
+		num_of_cores = 1;
+		break;
 	case ROUND_ROBIN_QUANTUM_20:
 		sched_type = "ROUND_ROBIN_QUANTUM_20";
 		s = new RoundRobin(20);
@@ -94,7 +104,7 @@ void OperatingSystem::generateStatistics() {
 	//turnaround time
 	//processor time
 	ofstream outfile;
-	outfile.open("stats.txt");
+	outfile.open("stats.txt", fstream::app);
 
 	if (outfile.fail()) {
 		cout << "failed to open file" << endl;
@@ -103,7 +113,7 @@ void OperatingSystem::generateStatistics() {
 
 	double num_processes = (double)process_table.size();
 	double through_put = num_processes / current_time;
-	double processor_utilization = processor_time / (double)current_time;
+	double processor_utilization = processor_time / (double)current_time / num_of_cores;
 	double total_wait = 0;
 	double total_response = 0;
 	double total_turnaround = 0;
@@ -133,15 +143,16 @@ void OperatingSystem::generateStatistics() {
 	}
 	#endif
 
-	outfile << "Sheduler type: " << sched_type << endl;
+	outfile << "Scheduler type: " << sched_type << endl;
 	outfile << "Total runtime: " << current_time << " ms" << endl;
 	outfile << "Throughput: " << through_put << " processes/ms" << endl;
 	outfile << "Average wait time: " << avg_wait << " ms" << endl;
 	outfile << "Average response time: " << avg_response << " ms" << endl;
 	outfile << "Average turnaround time: " << avg_turnaround << " ms" << endl;
 	outfile << "CPU utilization: " << processor_utilization * 100 << "%" << endl;
-	outfile << "CPU time: " << processor_time << " ms" << endl;
-	outfile << "Idle time: " << idle_time << " ms" << endl;
+	outfile << "CPU time (across all cores): " << processor_time << " ms" << endl;
+	outfile << "Idle time (across all cores): " << idle_time << " ms" << endl;
+	outfile << endl;
 }
 
 void OperatingSystem::generateProcessFile(string file_name, int num_processes) {

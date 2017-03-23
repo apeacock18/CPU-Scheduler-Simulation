@@ -1,7 +1,7 @@
 #pragma once
 
 //verbose logs for testing
-#define LOG_VERBOSE
+//#define LOG_VERBOSE
 //step by step time
 //#define WAIT_FOR_INPUT
 
@@ -28,6 +28,8 @@ using namespace std;
 enum SchedulerType {
 	FIRST_COME_FIRST_SERVE,
 	ROUND_ROBIN_QUANTUM_5,
+	ROUND_ROBIN_QUANTUM_10,
+	ROUND_ROBIN_QUANTUM_15,
 	ROUND_ROBIN_QUANTUM_20,
 	SMALLEST_PROCESS_NEXT,
 	MULTILEVEL_FEEBACK_QUEUE,
