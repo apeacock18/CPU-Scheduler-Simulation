@@ -39,12 +39,14 @@ Process* RoundRobin::schedule() {
 			}
 
 			//pick a process from the queue until you find an unfinished one or the queue empties
+			bool process_is_invalid = false;
 			do {
 				current_process = q.front();
 				q.pop();
-			} while (current_process->isFinished() && !q.empty());
+				process_is_invalid = current_process->isFinished() || current_process->isIoBurst();
+			} while (process_is_invalid && !q.empty());
 			//to take care of the possibility that we have an empty queue and the last process was unfinished
-			if (current_process->isFinished()) {
+			if (process_is_invalid) {
 				current_process = nullptr;
 			}
 		}
