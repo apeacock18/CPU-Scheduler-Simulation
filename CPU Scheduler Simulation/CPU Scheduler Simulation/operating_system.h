@@ -49,16 +49,20 @@ class OperatingSystem {
 private:
 	Scheduler* s;
 	string sched_type;
+	/* I/O queue for single I/O device */
 	queue<Process*> io_queue;
+	/* Holds all processes read in from file, mapping each process to its PID */
 	unordered_map<int, Process*> process_table;
 	/* Contains a pointer to every process, sorted by arrival time */
 	priority_queue<Process*, vector<Process*>, ArrivalComparator> arrival_queue;
 	/* Accumulated processor time across simulation */
 	int processor_time;
+	/* Increments each loop iteration and simulates a ms of processor time */
 	int current_time;
 	/* Accumulated idle time across simulation */
 	int idle_time;
 	int num_of_cores;
+	/* Constant context switch time of 3 ticks */
 	const int SWITCH_TIME = 3;
 
 	int generateRandomNumberInBounds(int min, int max);

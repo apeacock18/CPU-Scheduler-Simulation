@@ -10,6 +10,7 @@ int main() {
 
 	try {
 		for (int i = 0; i < num_of_schedulers; ++i) {
+			//run processes and generate stats for each sheduler
 			OperatingSystem os = OperatingSystem((SchedulerType)i);
 			os.readProcessesFromFile("process_list.txt");
 			os.runProcesses();

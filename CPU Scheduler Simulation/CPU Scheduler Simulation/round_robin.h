@@ -5,9 +5,13 @@
 
 class RoundRobin : public Scheduler {
 private:
+	/* Time slice to use when interrupting process */
 	int quantum;
+	/* Counts the number of ticks the process has been in the CPU */
 	int counter;
+	/* Ready queue for sheduler */
 	queue<Process*> q;
+	/* Flag for if Round Robin is used for multilevel feedback queue */
 	bool isMFQ;
 
 public:

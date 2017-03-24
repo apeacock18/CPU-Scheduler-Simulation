@@ -98,11 +98,7 @@ OperatingSystem::~OperatingSystem() {
 }
 
 void OperatingSystem::generateStatistics() {
-	//through put
-	//avg wait time
-	//response time
-	//turnaround time
-	//processor time
+
 	ofstream outfile;
 	outfile.open("stats.txt", fstream::app);
 

@@ -27,5 +27,4 @@ public:
 	void addProcess(Process* p);
 	int getNumInReadyQueue();
 
-
 };

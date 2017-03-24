@@ -12,7 +12,6 @@ FirstComeFirstServe::FirstComeFirstServe(int num_of_cores) : Scheduler(), q(), m
 
 }
 
-
 Process* FirstComeFirstServe::schedule() {
 	cout << "Scheduling FCFS with " << num_of_cores << " cores..." << endl;
 	Process* to_return = nullptr;

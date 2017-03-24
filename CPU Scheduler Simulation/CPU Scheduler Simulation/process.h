@@ -36,6 +36,7 @@ private:
 	int executeBurst();
 
 public:
+	/* Initializes process with PID, arrival time, and CPU/IO bursts */
 	Process(int id, int arrival_time, vector<int> bursts);
 
 	//getters
@@ -46,10 +47,7 @@ public:
 	bool isFinished() const { return is_finished; }
 	bool isContextSwitching() const { return is_context_switching; }
 	int getCurrentBurstLength() const { return bursts[burst_index]; }
-	
 	int getBurstIndex() const { return burst_index; }
-
-	void setIsContextSwitching(bool is_context_switching) { this->is_context_switching = is_context_switching; }
 
 	/**
 	Runs CPU burst.
@@ -62,8 +60,10 @@ public:
 	**/
 	int io(int current_time);
 
+	//setters
+	void setIsContextSwitching(bool is_context_switching) { this->is_context_switching = is_context_switching; }
+	/* Updates the time in which the process exits the processor */
 	void updateExitTime(int current_time) { exit_time = current_time; }
-
 	/* Updates this process's CPU wait time */
 	void updateCpuWaitTime(int current_time);
 	/* Updates this process's IO wait time */
