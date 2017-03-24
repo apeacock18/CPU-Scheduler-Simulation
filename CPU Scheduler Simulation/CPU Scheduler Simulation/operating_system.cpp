@@ -94,6 +94,7 @@ OperatingSystem::~OperatingSystem() {
 	for (table_iter; table_iter != process_table.end(); ++table_iter) {
 		delete table_iter->second;
 	}
+	delete s;
 
 }
 
