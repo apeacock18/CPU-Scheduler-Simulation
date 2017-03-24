@@ -16,12 +16,15 @@ Process* FirstComeFirstServe::schedule() {
 	cout << "Scheduling FCFS with " << num_of_cores << " cores..." << endl;
 	Process* to_return = nullptr;
 
+	//if we have a stored process for this core and it's still a valid process, return it
 	if (multicore_processes[current_core_index] && multicore_processes[current_core_index]->isCpuBurst() && !multicore_processes[current_core_index]->isFinished()) {
 		to_return = multicore_processes[current_core_index];
 	}
+	//otherwise, try to take one from the queue
 	else if (!q.empty()) {
 		multicore_processes[current_core_index] = q.front();
 		q.pop();
+		//dedicate the core to this process
 		to_return = multicore_processes[current_core_index];
 		to_return->setIsContextSwitching(true);
 	}
