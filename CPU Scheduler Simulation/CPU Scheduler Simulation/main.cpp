@@ -14,7 +14,9 @@ int main() {
 			OperatingSystem os = OperatingSystem((SchedulerType)i);
 			os.readProcessesFromFile("process_list.txt");
 			os.runProcesses();
-			os.generateStatistics();
+			//if it's the first time, overwrite the stats file; otherwise append
+			bool overwrite_file = (i == 0);
+			os.generateStatistics(overwrite_file);
 		}
 	}
 	catch (exception& e) {

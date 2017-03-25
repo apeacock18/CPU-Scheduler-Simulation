@@ -82,8 +82,8 @@ public:
 
 	~OperatingSystem();
 
-	/* Generates stats */
-	void generateStatistics();
+	/* Generates stats and prints to file */
+	void generateStatistics(bool overwrite_file);
 
 	/* Generates random processes and places the data in file_name */
 	void generateProcessFile(string file_name, int num_processes);

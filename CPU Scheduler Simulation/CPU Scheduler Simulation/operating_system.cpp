@@ -98,10 +98,16 @@ OperatingSystem::~OperatingSystem() {
 
 }
 
-void OperatingSystem::generateStatistics() {
+void OperatingSystem::generateStatistics(bool overwrite_file) {
 
 	ofstream outfile;
-	outfile.open("stats.txt", fstream::app);
+	string filename = "stats.txt";
+	if (overwrite_file) {
+		outfile.open(filename, fstream::trunc);
+	}
+	else {
+		outfile.open(filename, fstream::app);
+	}
 
 	if (outfile.fail()) {
 		cout << "failed to open file" << endl;
